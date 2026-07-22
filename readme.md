@@ -17,9 +17,13 @@ UXP dialog to connect OpenAI with Adobe InDesign (2023/v18.5). UXP Plugin (Text/
 5. At the first start click on the key icon (top right of the panel) and enter the API key in the input field of the opened dialog. 
 
 ## Use Cases
-Here are some use cases: [Translation, Text Shortening, Headline Creation](https://vimeo.com/836122207), [Images](https://vimeo.com/835233091), [Index](https://vimeo.com/834805501) (For demonstration purposes only, not included in the plugin.), [Table editing](https://vimeo.com/869998618) or [image description](https://vimeo.com/895310245). And GREP expressions are also a good use case.
+Here are some use cases: [Translation, Text Shortening, Headline Creation](https://vimeo.com/836122207), [Images](https://vimeo.com/835233091), [Table editing](https://vimeo.com/869998618) or [image description](https://vimeo.com/895310245). And GREP expressions are also a good use case.
 
 You have others, please let me know ...
+
+## Note
+
+There is a paid plugin specifically for generating alternate text, [ALT-Text-4-InDesign](https://exchange.adobe.com/apps/cc/1c6b7a83/alt-text-for-indesign), which was developed based on this plugin.
 
 ## Remark
 I think many things about *»Artificial Intelligence«* are currently rightly criticized, such as high energy consumption, unclear copyright, discrimination by algorithms, dubious origin of the training data and also poor working conditions and payment of those who classified them. 
