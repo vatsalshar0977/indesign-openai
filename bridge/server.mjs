@@ -520,6 +520,15 @@ const server = http.createServer(async (req, res) => {
       return;
     }
 
+    if (req.method === "GET" && p === "/api/config") {
+      sendJson(res, 200, {
+        tokenRequired: Boolean(AGENT_TOKEN),
+        publicUrl: PUBLIC_URL || `http://localhost:${PORT}`,
+        port: PORT
+      });
+      return;
+    }
+
     if (req.method === "GET" && p === "/api/state") {
       const jobs = [...state.jobs.values()].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, 40);
       const cmds = [...state.commands.values()].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1)).slice(0, 40);

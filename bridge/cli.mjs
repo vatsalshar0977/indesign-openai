@@ -37,13 +37,30 @@ function baseUrl() {
 
 const TOKEN = process.env.BRIDGE_TOKEN || "";
 
+let activeBase = null;
+
 async function api(method, urlPath, body, { wait } = {}) {
+  try {
+    return await apiOnce(method, urlPath, body, { wait });
+  } catch (err) {
+    /* The stored URL may be the public one, which is not reachable from inside the sandbox. */
+    const fallback = `http://127.0.0.1:${process.env.PORT || 8787}`;
+    if (activeBase !== fallback && (activeBase || baseUrl()) !== fallback) {
+      activeBase = fallback;
+      return await apiOnce(method, urlPath, body, { wait });
+    }
+    throw err;
+  }
+}
+
+async function apiOnce(method, urlPath, body, { wait } = {}) {
   const qs = [];
   if (wait) qs.push(`wait=${wait}`);
   if (TOKEN && !urlPath.includes("token=")) qs.push(`token=${encodeURIComponent(TOKEN)}`);
   const separator = urlPath.includes("?") ? "&" : "?";
   const query = qs.length ? `${separator}${qs.join("&")}` : "";
-  const res = await fetch(`${baseUrl()}${urlPath}${query}`, {
+  const base = activeBase || baseUrl();
+  const res = await fetch(`${base}${urlPath}${query}`, {
     method,
     headers: { "content-type": "application/json", ...(TOKEN ? { "x-bridge-token": TOKEN } : {}) },
     body: body === undefined ? undefined : JSON.stringify(body),

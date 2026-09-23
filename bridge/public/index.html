@@ -192,6 +192,13 @@ function escapeHtml(s) {
   return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 }
 
+api("/api/config").then((cfg) => {
+  if (cfg.tokenRequired && !TOKEN) {
+    tokenInput.placeholder = "agent token required";
+    tokenInput.style.borderColor = "#ffb84d";
+  }
+}).catch(() => {});
+
 refresh();
 setInterval(refresh, 3000);
 </script>
