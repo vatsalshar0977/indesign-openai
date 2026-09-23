@@ -1,0 +1,26 @@
+{
+  "name": "indesign-openai",
+  "version": "1.5.0",
+  "description": "OpenAI UXP panel for Adobe InDesign, extended with an Arena bridge: run the panel without an OpenAI key and let an agent drive InDesign.",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:bridge": "BRIDGE_URL=${BRIDGE_URL:-} node scripts/build.mjs",
+    "set-url": "node scripts/set-url.mjs",
+    "bridge": "node bridge/server.mjs",
+    "bridge:cli": "node bridge/cli.mjs",
+    "status": "node bridge/cli.mjs status",
+    "jobs": "node bridge/cli.mjs jobs",
+    "watch": "node bridge/cli.mjs watch",
+    "test": "node test/smoke.mjs",
+    "build:standalone": "node scripts/bundle-standalone.mjs",
+    "build:all": "npm run build && npm run build:standalone"
+  },
+  "keywords": [
+    "indesign",
+    "uxp",
+    "openai",
+    "bridge"
+  ],
+  "license": "MIT"
+}
