@@ -12,7 +12,9 @@
     "status": "node bridge/cli.mjs status",
     "jobs": "node bridge/cli.mjs jobs",
     "watch": "node bridge/cli.mjs watch",
-    "test": "node test/smoke.mjs"
+    "test": "node test/smoke.mjs",
+    "build:standalone": "node scripts/bundle-standalone.mjs",
+    "build:all": "npm run build && npm run build:standalone"
   },
   "keywords": [
     "indesign",

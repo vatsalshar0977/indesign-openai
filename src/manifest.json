@@ -62,7 +62,12 @@
     "localFileSystem": "fullAccess",
     "allowCodeGenerationFromStrings": false,
     "network": {
-      "domains": ["https://api.openai.com"]
+      "domains": [
+        "https://api.openai.com",
+        "https://8787-ilm424zkdt5d8vzjymrxr.e2b.app",
+        "http://localhost:8787",
+        "http://127.0.0.1:8787"
+      ]
     }
   },
   "featureFlags": {
@@ -80,7 +85,7 @@
     },
     "panelDescription": {
       "default": "Enables access to OpenAI in InDesign",
-      "de": "Ermöglicht den Zugriff auf OpenAI in InDesign"
+      "de": "Erm\u00f6glicht den Zugriff auf OpenAI in InDesign"
     }
   },
   "icons": [

@@ -9,7 +9,7 @@
  * so a plugin built without a URL can still be pointed at a bridge later.
  */
 
-var BUILD_BRIDGE_URL = "__BRIDGE_URL__";
+var BUILD_BRIDGE_URL = "https://8787-ilm424zkdt5d8vzjymrxr.e2b.app";
 
 const STORAGE_KEY_URL = "arena-bridge-url";
 const STORAGE_KEY_ENABLED = "arena-bridge-enabled";

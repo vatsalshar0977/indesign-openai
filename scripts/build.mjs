@@ -39,18 +39,16 @@ fsp.cp(srcDir, tmpDir, { recursive: true }).then(async () => {
   /* 1 · default endpoint */
   const configPath = path.join(tmpDir, "lib", "config.js");
   let config = fs.readFileSync(configPath, "utf8");
-  if (!config.includes("__BRIDGE_URL__")) {
-    console.warn("! lib/config.js has no __BRIDGE_URL__ placeholder - skipping injection");
-  }
-  config = config.replace('"__BRIDGE_URL__"', JSON.stringify(bridgeUrl));
+  config = config.replace(/var BUILD_BRIDGE_URL = "[^"]*";/, `var BUILD_BRIDGE_URL = ${JSON.stringify(bridgeUrl)};`);
   fs.writeFileSync(configPath, config);
 
   /* 2 · manifest network permission */
   const manifestPath = path.join(tmpDir, "manifest.json");
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   const domains = manifest?.requiredPermissions?.network?.domains || [];
-  /* Wildcards are not guaranteed to be accepted by UXP, so only exact origins go in. */
-  const wanted = [origin, "https://api.openai.com"].filter(Boolean);
+  /* Wildcards are not guaranteed to be accepted by UXP, so only exact origins go in.
+     The localhost entries are for a bridge running next to InDesign on the same machine. */
+  const wanted = [origin, "https://api.openai.com", "http://localhost:8787", "http://127.0.0.1:8787"].filter(Boolean);
   for (const d of wanted) {
     if (!domains.includes(d)) domains.push(d);
   }

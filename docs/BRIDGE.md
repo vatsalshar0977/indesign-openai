@@ -143,7 +143,16 @@ the agent models go to the bridge.
 Agent endpoints take the token as `x-bridge-token`, `Authorization: Bearer …` or
 `?token=…` (only enforced when `BRIDGE_TOKEN` is set).
 
-## 7 · Tests
+## 7 · Installing the plugin / running the bridge locally
+
+- The `.ccx` is unsigned — if InDesign will not install it, load the plugin straight from
+  `src/` with the UXP Developer Tool or switch on player debug mode: see
+  **[docs/INSTALL.md](./INSTALL.md)**.
+- `standalone/indesign-bridge.mjs` is a single-file build of this server (no npm install):
+  `node indesign-bridge.mjs`, optionally with `UPSTREAM=…` to relay jobs to a hosted bridge
+  so the agent can answer them.
+
+## 8 · Tests
 
 ```bash
 npm run bridge &                 # in one shell
