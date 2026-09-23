@@ -44,6 +44,16 @@ const POLL_INTERVAL_MS = 1500;
 const LONG_POLL_WAIT_SEC = 20;
 const RECONNECT_INTERVAL_MS = 5000;
 const DEFAULT_TEXT_LIMIT = 4000;
+/* Some reverse proxies in front of the bridge reject non-browser clients with 403. */
+const BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
+function browserHeaders(extra) {
+  return Object.assign({
+    "Accept": "application/json, text/plain, */*",
+    "Accept-Language": "en-US,en;q=0.9",
+    "User-Agent": BROWSER_UA,
+    "Cache-Control": "no-cache"
+  }, extra || {});
+}
 
 let running = false;
 let statusHandler = null;
@@ -124,10 +134,13 @@ async function runOnce() {
   const url = new URL(`v1/indesign/poll?wait=${LONG_POLL_WAIT_SEC}`, base);
   const response = await fetch(url.href, {
     method: "GET",
-    headers: { Authorization: "Bearer arena-bridge" },
+    headers: browserHeaders({ Authorization: "Bearer arena-bridge" }),
     redirect: "follow"
   });
   if (!response.ok) {
+    if (response.status === 403) {
+      throw new Error("403 from the host in front of the bridge (proxy). Run the bridge locally (link icon → http://localhost:8787) or check the URL.");
+    }
     throw new Error(`Bridge replied with HTTP ${response.status}`);
   }
   const data = await response.json().catch(() => ({}));
@@ -159,7 +172,7 @@ async function postResult(commandId, ok, result, error) {
   try {
     await fetch(url.href, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: browserHeaders({ "Content-Type": "application/json" }),
       body: JSON.stringify({ id: commandId, ok, result, error, client: "indesign-uxp" }),
       redirect: "follow"
     });

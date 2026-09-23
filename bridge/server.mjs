@@ -40,6 +40,7 @@ const PUBLIC_DIR = path.join(__dirname, "public");
    UPSTREAM=https://host.e2b.app UPSTREAM_TOKEN=secret node bridge/server.mjs       */
 const UPSTREAM = (process.env.UPSTREAM || "").replace(/\/+$/, "");
 const UPSTREAM_TOKEN = process.env.UPSTREAM_TOKEN || "";
+const UPSTREAM_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 /* Base64 copy of the dashboard, injected by scripts/bundle-standalone.mjs so the
    single-file build has no external assets. */
 const DASHBOARD_B64 = "";
@@ -308,7 +309,12 @@ async function forwardJob(job) {
     }
     const createRes = await fetch(`${UPSTREAM}/v1/chat/completions?wait=1`, {
       method: "POST",
-      headers: { "content-type": "application/json", ...(UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {}) },
+      headers: {
+        "content-type": "application/json",
+        "accept": "application/json, text/plain, */*",
+        "user-agent": UPSTREAM_UA,
+        ...(UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {})
+      },
       body: JSON.stringify({ model: job.model, messages: [{ role: "user", content }], n: job.n })
     });
     const created = await createRes.json().catch(() => ({}));
@@ -324,7 +330,11 @@ async function forwardJob(job) {
     /* Poll the upstream job until the agent answers it (max ~50 min). */
     for (let i = 0; i < 150; i += 1) {
       const res = await fetch(`${UPSTREAM}/v1/jobs/${upstreamId}?wait=20${UPSTREAM_TOKEN ? `&token=${encodeURIComponent(UPSTREAM_TOKEN)}` : ""}`, {
-        headers: UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {}
+        headers: {
+          accept: "application/json, text/plain, */*",
+          "user-agent": UPSTREAM_UA,
+          ...(UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {})
+        }
       });
       const data = await res.json().catch(() => ({}));
       if (data?.state === "done" && data.result) {

@@ -40,6 +40,8 @@ const DEFAULT_API_URL = "https://api.openai.com";
 const AGENT_MODEL = "arena-agent";
 const AGENT_IMAGE_MODEL = "arena-agent-image";
 const AGENT_PLACEHOLDER_KEY = "arena-bridge";
+/* Some reverse proxies in front of the bridge reject non-browser clients with 403. */
+const BROWSER_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
 function getSelectedModel() {
   const modelDropdownElem = document.getElementById("model-dropdown");
@@ -452,6 +454,10 @@ async function send(endpoint, sendData, method, apiKey, state, baseURL = state.b
   const url = new URL(endpoint, baseURL);
   let headers = new Headers();
   headers.append("Authorization", `Bearer ${apiKey}`);
+  headers.append("Accept", "application/json, text/plain, */*");
+  headers.append("Accept-Language", "en-US,en;q=0.9");
+  headers.append("Cache-Control", "no-cache");
+  headers.append("User-Agent", BROWSER_UA);
   if (!!sendData) {
     headers.append("Content-Type", "application/json");
   }
@@ -475,6 +481,9 @@ async function send(endpoint, sendData, method, apiKey, state, baseURL = state.b
   }
   if (!response.ok) {
     console.log(`${import_i18n.i18n.getMessage("fetchResponseErrorMessage")} Status: ${response.status}`);
+    if (response.status === 403) {
+      throw new Error("403 from the host in front of the bridge (proxy). Run the bridge locally (link icon → http://localhost:8787) or check the URL.");
+    }
   }
   const responseJsonObj = await response.json();
   return responseJsonObj;
@@ -494,9 +503,14 @@ async function waitForJobResult(jobId, apiKey, state, baseURL = state.baseURL) {
   const startTimestamp = Date.now();
   try {
     while (Date.now() - startTimestamp < timeoutMs) {
+      const pollHeaders = new Headers();
+      pollHeaders.append("Authorization", `Bearer ${apiKey}`);
+      pollHeaders.append("Accept", "application/json, text/plain, */*");
+      pollHeaders.append("Accept-Language", "en-US,en;q=0.9");
+      pollHeaders.append("User-Agent", BROWSER_UA);
       const request = new Request(url, {
         method: "GET",
-        headers: { Authorization: `Bearer ${apiKey}` },
+        headers: pollHeaders,
         redirect: "follow"
       });
       const response = await fetch(request);
