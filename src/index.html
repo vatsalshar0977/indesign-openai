@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8"></meta>
+		<link rel="stylesheet" href="./main.css">
+		<script src="./main.js" defer></script>
+	</head>
+	<body>
+		<sp-theme scale="medium">
+			<div id="model-group">
+				<sp-dropdown id="model-dropdown" placeholder="Model ..." style="width: 320px">
+					<sp-menu id="model-menu" slot="options" selectedoptions="">
+						<sp-menu-item value="gpt-5" selected data-t="modelGpt5Label">Text Completions (gpt-5)</sp-menu-item>
+						<sp-menu-item value="gpt-5-mini" data-t="modelGpt5MiniLabel">Text Completions (gpt-5-mini)</sp-menu-item>
+						<sp-menu-item value="o4-mini" data-t="modelGpto4MiniLabel">Text Completions (o4-mini)</sp-menu-item>
+						<sp-menu-item value="gpt-4.1" data-t="modelGpt41Label">Text Completions (gpt-4.1)</sp-menu-item>
+						<sp-menu-item value="gpt-4o" data-t="modelGpt4oLabel">Text Completions (gpt-4o)</sp-menu-item>
+						<!-- <sp-menu-item value="gpt-4-turbo" data-t="modelGpt4TurboLabel">Text Completions (gpt-4-turbo)</sp-menu-item> -->
+						<!-- <sp-menu-item value="gpt-4" data-t="modelGpt4Label">Text Completions (gpt-4)</sp-menu-item> -->
+						<!-- <sp-menu-item value="gpt-3.5-turbo" data-t="modelGpt35Label">Text Completions (gpt-3.5-turbo)</sp-menu-item> -->
+						<sp-menu-item value="gpt-4-vision" data-t="modelGpt4VisionLabel">Image Description (gpt-4o)</sp-menu-item>
+					</sp-menu>
+				</sp-dropdown>
+				<div id="model-button-group">
+					<sp-action-button id="api-key-button" size="large" quiet>
+						<svg xmlns="http://www.w3.org/2000/svg" title="Set API key" data-t="apiKeyButton@title" viewBox="0 0 18 18" height="18" width="18"><defs><style>.fill{fill:currentcolor;}</style></defs><rect id="Canvas" fill="#ff13dc" width="18" height="18" opacity="0"/><path class="fill" d="M17.761,4.3875,14.53,1.156a.75.75,0,0,0-1.06066-.00034L13.469,1.156,6.5885,8.0365A4.45,4.45,0,0,0,4.5,7.5,4.5,4.5,0,1,0,9,12a4.45,4.45,0,0,0-.5245-2.0665l3.363-3.363,1.87,1.87a.375.375,0,0,0,.53033.00017L14.239,8.4405l1.672-1.672L13.776,4.633l.6155-.6155,2.135,2.1355L17.761,4.918A.37543.37543,0,0,0,17.761,4.3875ZM3.75,14.25a1.5,1.5,0,1,1,1.5-1.5A1.5,1.5,0,0,1,3.75,14.25Z" /></svg>
+					</sp-action-button>
+					<sp-action-button id="bridge-url-button" size="large" quiet>
+						<svg xmlns="http://www.w3.org/2000/svg" title="Arena bridge URL" viewBox="0 0 18 18" height="18" width="18"><defs><style>.fill{fill:currentcolor;}</style></defs><rect id="Canvas" fill="#ff13dc" width="18" height="18" opacity="0"/><path class="fill" d="M7.5,10.5a3,3,0,0,1,0-4.24l1.77-1.77a3,3,0,0,1,4.24,4.24l-.88.88a.75.75,0,1,1-1.06-1.06l.88-.88a1.5,1.5,0,0,0-2.12-2.12L8.56,7.32a1.5,1.5,0,0,0,0,2.12.75.75,0,0,1-1.06,1.06Z"/><path class="fill" d="M10.5,7.5a3,3,0,0,1,0,4.24l-1.77,1.77a3,3,0,0,1-4.24-4.24l.88-.88A.75.75,0,1,1,6.43,9.45l-.88.88a1.5,1.5,0,0,0,2.12,2.12l1.77-1.77a1.5,1.5,0,0,0,0-2.12.75.75,0,0,1,1.06-1.06Z"/></svg>
+					</sp-action-button>
+				</div>
+			</div>
+			<div id="settings-group">
+				<sp-slider id="n-slider" min="1" max="10" value="1">
+					<sp-label slot="label"><span data-t="nSliderLabel">Number of Choices</span></sp-label>
+				</sp-slider>
+				<sp-slider id="temperature-slider" min="0" max="2" value="0.7" step="0.1">
+					<sp-label slot="label"><span data-t="temperatureSliderLabel">Creativity</span></sp-label>
+				</sp-slider>
+			</div>
+			<div id="input-group">
+				<div id="instruction-textarea-group">
+					<sp-textarea id="instruction-textarea" placeholder="Instruction" data-t="instructionTextarea@placeholder">
+						<!-- <sp-label slot="label"><span data-t="instructionTextareaLabel">Instruction</span></sp-label> -->
+					</sp-textarea>
+					<div id="instruction-textarea-button-group">
+						<sp-action-button id="instruction-clear-button" quiet>
+							<svg xmlns="http://www.w3.org/2000/svg" title="Clear instruction" data-t="instructionClearButton@title" viewBox="0 0 12 12" width="12" height="12"><defs><style>.fill{fill:currentcolor;}</style></defs><rect id="Canvas" fill="#ff13dc" width="12" height="12" opacity="0"/><path class="fill" d="M7.34277,6l3.39649-3.39648a.94949.94949,0,1,0-1.34375-1.3418L6.00018,4.65741,2.60449,1.26172a.94914.94914,0,1,0-1.34277,1.3418L4.65778,6,1.26172,9.39648a.94914.94914,0,1,0,1.34277,1.3418L6.00018,7.34259l3.39533,3.39569a.94949.94949,0,1,0,1.34375-1.3418Z" /></svg>
+						</sp-action-button>
+					</div>
+				</div>
+				<div id="optional-input-textarea-group">
+					<sp-textarea id="optional-input-textarea" placeholder="Optional input" data-t="optionalInputTextarea@placeholder">
+						<!-- <sp-label slot="label"><span data-t="optionalInputTextareaLabel">Instruction</span></sp-label> -->
+					</sp-textarea>
+					<div id="optional-input-textarea-button-group">
+						<sp-action-button id="optional-input-clear-button" quiet>
+							<svg xmlns="http://www.w3.org/2000/svg" title="Clear optional input" data-t="optionalInputClearButton@title" viewBox="0 0 12 12" width="12" height="12"><defs><style>.fill{fill:currentcolor;}</style></defs><rect id="Canvas" fill="#ff13dc" width="12" height="12" opacity="0"/><path class="fill" d="M7.34277,6l3.39649-3.39648a.94949.94949,0,1,0-1.34375-1.3418L6.00018,4.65741,2.60449,1.26172a.94914.94914,0,1,0-1.34277,1.3418L4.65778,6,1.26172,9.39648a.94914.94914,0,1,0,1.34277,1.3418L6.00018,7.34259l3.39533,3.39569a.94949.94949,0,1,0,1.34375-1.3418Z" /></svg>
+						</sp-action-button>
+						<sp-action-button id="optional-input-import-button" quiet>
+							<svg xmlns="http://www.w3.org/2000/svg" title="Import from document" data-t="optionalInputImportButton@title" viewBox="0 0 16 16" width="16" height="16"><defs><style>.fill{fill:currentcolor;}</style></defs><rect id="Canvas" fill="#ff13dc" width="16" height="16" opacity="0"/><path class="fill" d="M0.7,7.6C0.6,8,0.7,8.4,1,8.7l4.9,4.9c0.4,0.4,1.1,0.4,1.5,0c0.4-0.4,0.4-1.1,0-1.5L4.3,9h10.3c0.6,0,1.1-0.5,1.1-1.1 c0-0.6-0.5-1.1-1.1-1.1H4.3l3.1-3.1c0.4-0.4,0.4-1.1,0-1.5C7,1.9,6.3,1.9,5.9,2.3c0,0,0,0,0,0L1,7.2C0.9,7.3,0.8,7.4,0.7,7.6z"/></svg>
+						</sp-action-button>
+					</div>
+				</div>
+				<div id="input-button-group">
+					<sp-button id="send-button" data-t="sendButtonLabel">Send</sp-button>
+				</div>
+				<sp-body id="input-error-message" size="s">&nbsp;</sp-body>
+			</div>
+			<div id="output-group">
+				<div id="output-content-group">
+					<div id="output-textarea-group">
+						<textarea id="output-textarea" placeholder="Result" data-t="outputTextarea@placeholder"></textarea>
+					</div>
+					<div id="output-textarea-button-group">
+						<sp-action-button id="transfer-result-button" quiet>
+							<svg xmlns="http://www.w3.org/2000/svg" title="Transfer to optional input field." data-t="transferResultButton@title" viewBox="0 0 16 16" width="16" height="16"><defs><style>.fill{fill:currentcolor;}</style></defs><rect id="Canvas" fill="#ff13dc" width="16" height="16" opacity="0"/><path class="fill" d="M8.8,0.6C8.4,0.4,7.9,0.5,7.6,0.8L2.7,5.8c-0.4,0.4-0.4,1.1,0,1.5c0.4,0.4,1.1,0.4,1.5,0l3.1-3.1v10.3 c0,0.6,0.5,1.1,1.1,1.1c0.6,0,1.1-0.5,1.1-1.1V4.1l3.1,3.1c0.4,0.4,1.1,0.4,1.5,0c0.4-0.4,0.4-1.1,0-1.5c0,0,0,0,0,0L9.1,0.8 C9,0.7,8.9,0.6,8.8,0.6z"/></svg>			
+						</sp-action-button>
+						<sp-action-button id="clipboard-button" size="large" quiet>
+							<svg xmlns="http://www.w3.org/2000/svg" title="Copy text to clipboard" data-t="clipboardButton@title" viewBox="0 0 18 18" height="18" width="18"><defs><style>.fill{fill:currentcolor;}</style></defs><rect id="Canvas" fill="#ff13dc" opacity="0" width="18" height="18" /><path class="fill" d="M11,3V2A2,2,0,0,0,7,2V3H5V5h8V3ZM10,3H8V2a1,1,0,0,1,2,0Z" /><path class="fill" d="M15.5,3H14V5.5a.5.5,0,0,1-.5.5h-9A.5.5,0,0,1,4,5.5V3H2.5a.5.5,0,0,0-.5.5v13a.5.5,0,0,0,.5.5h13a.5.5,0,0,0,.5-.5V3.5A.5.5,0,0,0,15.5,3ZM13,9.75a.25.25,0,0,1-.25.25h-.5A.25.25,0,0,1,12,9.75V9H10v5h.75a.25.25,0,0,1,.25.25v.5a.25.25,0,0,1-.25.25H7.25A.25.25,0,0,1,7,14.75v-.5A.25.25,0,0,1,7.25,14H8V9H6v.7365a.25.25,0,0,1-.25.25h-.5a.25.25,0,0,1-.25-.25V8.25A.25.25,0,0,1,5.25,8h7.5a.25.25,0,0,1,.25.25Z" /></svg>
+						</sp-action-button>
+					</div>
+				</div>
+				<div id="spinner-group" class="hidden">
+					<sp-body id="spinner" size="XL" data-t="spinnerLabel">Loading …</sp-body>
+				</div>
+			</div>
+			<div id="choice-navi-group">
+				<sp-action-button id="prev-choice-button" class="hidden" quiet>
+					<sp-icon name="ui:ChevronLeftLarge" size="l" slot="icon"></sp-icon>
+				</sp-action-button>
+				<sp-body id="current-choice" size="L"></sp-body>
+				<sp-body id="choice-label-separator" size="L"></sp-body>
+				<sp-body id="number-of-choices" size="L"></sp-body>
+				<sp-action-button id="next-choice-button" class="hidden" quiet>
+					<sp-icon name="ui:ChevronRightLarge" size="l" slot="icon"></sp-icon>
+				</sp-action-button>
+			</div>
+			<div id="agent-link-group">
+				<sp-checkbox id="agent-link-switch">Agent link</sp-checkbox>
+				<sp-body id="agent-link-status" size="S">Link off</sp-body>
+			</div>
+			<div id="footer-button-group">
+				<sp-button id="insert-button" data-t="insertButtonLabel">Insert</sp-button>
+			</div>
+		</sp-theme>
+	</body>
+</html>
