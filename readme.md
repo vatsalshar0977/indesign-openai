@@ -5,20 +5,24 @@ UXP dialog to connect OpenAI with Adobe InDesign (2023/v18.5). UXP Plugin (Text/
 <img width="1920" alt="openAI_for_indesign" src="https://github.com/RolandDreger/indesign-openai/assets/19747449/27885cdb-2254-4527-8b78-3672d27a09e6">
 
 
-## Arena bridge (use the panel without an OpenAI key)
+## Arena bridge — agent-driven, no ChatGPT in the loop
 
-This fork adds a bridge server that sits between InDesign and whoever answers the request:
+This fork replaces the OpenAI dependency with a bridge: an agent answers the requests and
+drives InDesign directly.
 
-- the panel sends its request here instead of to OpenAI, and the answer comes back from a
-  queue — filled in by an agent or by you in the browser dashboard, **no API key needed**;
-- the same link works in reverse, so an agent can read and edit the open document.
+- **No OpenAI account, no API key, no model picker.** The panel boots straight into
+  *Arena agent* mode; the key field and the model sliders are hidden.
+- **Ask, or let the agent act.** Type an instruction and press Send — the request is
+  answered by the agent. The agent link (on by default) also lets the agent read the
+  selection, rewrite it, inspect the document and export files.
 
 ```bash
 npm run bridge     # start the server, then open the dashboard it prints
 npm test           # round-trip check with mocked InDesign
 ```
 
-Full setup, command reference and API: **[docs/BRIDGE.md](docs/BRIDGE.md)**.
+Setup, command reference and API: **[docs/BRIDGE.md](docs/BRIDGE.md)**.
+OpenAI models can still be switched back on (see §5 of the doc).
 
 ## Usage
 

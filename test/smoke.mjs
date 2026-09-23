@@ -42,6 +42,11 @@ class El {
       add: (...c) => c.forEach((x) => this.classes.add(x)),
       remove: (...c) => c.forEach((x) => this.classes.delete(x)),
       contains: (c) => this.classes.has(c),
+      toggle: (c, force) => {
+        const on = force === undefined ? !this.classes.has(c) : Boolean(force);
+        if (on) this.classes.add(c); else this.classes.delete(c);
+        return on;
+      },
     };
   }
   addEventListener(type, fn) {
@@ -174,13 +179,13 @@ async function testModelChannel() {
   const t0 = Date.now();
   console.log("\n[1] Model channel: panel Send -> bridge -> agent -> panel");
   localStorage.setItem("arena-bridge-url", BRIDGE);
-  localStorage.setItem("arena-bridge-enabled", "0");
+  localStorage.setItem("arena-bridge-enabled", "1");
 
   const create = require(path.join(root, "src", "panel", "create.js"));
   const ok = await create.setup(document.body);
   check("setup() returns true", ok === true);
 
-  getEl("model-dropdown").value = "gpt-4o";
+  getEl("model-dropdown").value = "arena-agent";
   getEl("n-slider").value = "1";
   getEl("temperature-slider").value = "0.7";
   getEl("instruction-textarea").value = "Translate to German: Good morning";
@@ -212,7 +217,15 @@ async function testModelChannel() {
   const output = getEl("output-textarea").value;
   console.log(`  (model channel took ${((Date.now() - t0) / 1000).toFixed(1)}s)`);
   check("answer arrived in the output field", output === "Guten Morgen", `got "${output}"`);
+  check("agent mode hides model settings", getEl("settings-group").classes.has("display-none"));
+  check("agent mode hides the API key button", getEl("api-key-button").classes.has("display-none"));
+
+  /* The link must come up on its own - nobody should have to switch it on by hand. */
+  const bridgeModule = require(path.join(root, "src", "panel", "bridge.js"));
+  check("agent link starts automatically", bridgeModule.isRunning() === true);
+  bridgeModule.stop();
   check("error message element stays empty", getEl("input-error-message").textContent === "", getEl("input-error-message").textContent);
+  check("no API key was needed", getEl("input-error-message").textContent === "");
 }
 
 /* Test 2: agent commands -> InDesign mock --------------------------------- */

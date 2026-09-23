@@ -3,7 +3,11 @@
  * Agent-facing CLI for the InDesign <-> Arena bridge.
  *
  *   node bridge/cli.mjs status                       # is the bridge + InDesign up?
- *   node bridge/cli.mjs jobs                         # queued model jobs waiting for an answer
+ *   node bridge/cli.mjs read                         # what is selected in InDesign?
+ *   node bridge/cli.mjs frames                       # text frames of the active spread
+ *   node bridge/cli.mjs info                         # active document
+ *   node bridge/cli.mjs write --file new-text.txt    # replace the selection
+ *   node bridge/cli.mjs jobs                         # queued requests waiting for an answer
  *   node bridge/cli.mjs job job_ab12cd34             # full text of one job
  *   node bridge/cli.mjs complete job_ab12cd34 --file reply.txt
  *   node bridge/cli.mjs complete job_ab12cd34 --text "Bonjour le monde"
@@ -167,11 +171,47 @@ const [cmd, a1] = [pos(0), pos(1)];
       console.log(`failed ${json.job.id}`);
       break;
     }
+    case "read": {
+      /* What is selected in InDesign right now? */
+      const { json } = await api("POST", "/v1/indesign/commands", { op: "selection.get", args: {} }, { wait: arg("wait", "30") });
+      console.log(json.state === "done" ? JSON.stringify(json.result, null, 2) : `${json.state}: ${json.error || ""}`);
+      break;
+    }
+    case "write": {
+      /* Replace the selection with text from --file / --text / stdin. */
+      const text = has("file") ? fs.readFileSync(arg("file"), "utf8") : has("text") ? arg("text", "") : await readStdin();
+      const { json } = await api("POST", "/v1/indesign/commands", { op: "selection.set", args: { text } }, { wait: arg("wait", "30") });
+      console.log(json.state === "done" ? `wrote ${json.result?.written ?? text.length} chars` : `${json.state}: ${json.error || ""}`);
+      break;
+    }
+    case "frames": {
+      const { json } = await api("POST", "/v1/indesign/commands", { op: "frames.list", args: { limit: Number(arg("limit", "25")) } }, { wait: arg("wait", "30") });
+      console.log(json.state === "done" ? JSON.stringify(json.result, null, 2) : `${json.state}: ${json.error || ""}`);
+      break;
+    }
+    case "info": {
+      const { json } = await api("POST", "/v1/indesign/commands", { op: "doc.info", args: {} }, { wait: arg("wait", "30") });
+      console.log(json.state === "done" ? JSON.stringify(json.result, null, 2) : `${json.state}: ${json.error || ""}`);
+      break;
+    }
+    case "reply": {
+      /* Alias for `complete` - answer a request that came from the panel. */
+      let texts;
+      if (has("file")) texts = [fs.readFileSync(arg("file"), "utf8")];
+      else if (has("text")) texts = [arg("text", "")];
+      else texts = [await readStdin()];
+      const { json } = await api("POST", `/v1/jobs/${a1}/complete`, { texts });
+      console.log(`answered ${json.job.id}`);
+      break;
+    }
     case "cmd":
     case "command": {
       let args = {};
       if (has("args")) args = JSON.parse(arg("args", "{}"));
       else if (has("json")) args = JSON.parse(arg("json", "{}"));
+      if (has("args-file")) args = { ...args, ...JSON.parse(fs.readFileSync(arg("args-file"), "utf8")) };
+      if (has("text-file")) args = { ...args, text: fs.readFileSync(arg("text-file"), "utf8") };
+      if (has("text")) args = { ...args, text: arg("text", "") };
       const { json } = await api("POST", "/v1/indesign/commands", { op: a1, args }, { wait: arg("wait", "30") });
       if (json.state === "queued" || json.state === "sent") {
         console.log(`queued ${json.id} — InDesign is not connected or busy (state: ${json.state})`);

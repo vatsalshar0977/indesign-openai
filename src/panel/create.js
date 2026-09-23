@@ -36,6 +36,18 @@ const NEW_LINE_CHARS = "\n\r";
 const OPTIONAL_TEXT_MARKER = '"""';
 const DEFAULT_API_KEY_NAME = "openai-api-key";
 const DEFAULT_API_URL = "https://api.openai.com";
+/* Agent mode: the request goes to the Arena bridge and is answered by the agent. */
+const AGENT_MODEL = "arena-agent";
+const AGENT_IMAGE_MODEL = "arena-agent-image";
+const AGENT_PLACEHOLDER_KEY = "arena-bridge";
+
+function getSelectedModel() {
+  const modelDropdownElem = document.getElementById("model-dropdown");
+  return modelDropdownElem?.value || AGENT_MODEL;
+}
+function isAgentModel(model) {
+  return model === AGENT_MODEL || model === AGENT_IMAGE_MODEL;
+}
 class State {
   tableRowSeparator = TABLE_ROW_SEPARATOR;
   tableColumnSeparator = TABLE_COLUMN_SEPARATOR;
@@ -99,6 +111,7 @@ async function setup(rootNode) {
     { "id": "clipboard-button", "event": "click", "handler": clipboardButtonClickHandler }
   ];
   registerPanelEventHandlers(handlerConfigArray, state);
+  updateAgentMode(state);
   registerAppEventHandler();
   setInitialPanelValues();
   resetNavi();
@@ -119,6 +132,7 @@ function registerAppEventHandler() {
   const openAIModel = modelDropdownElem.value;
   switch (openAIModel) {
     case "gpt-4-vision":
+    case "arena-agent-image":
       indesign?.app?.addEventListener("afterSelectionChanged", afterSelectionChangedHandler);
       break;
     default:
@@ -129,6 +143,7 @@ function removeAppEventHandler() {
   const openAIModel = modelDropdownElem.value;
   switch (openAIModel) {
     case "gpt-4-vision":
+    case "arena-agent-image":
       break;
     default:
       indesign?.app?.removeEventListener("afterSelectionChanged", afterSelectionChangedHandler);
@@ -138,17 +153,27 @@ function afterSelectionChangedHandler(evt) {
   setInitialOptionalText();
 }
 async function sendButtonClickHandler(evt, state) {
+  const modelDropdownElem = document.getElementById("model-dropdown");
+  const openAIModel = modelDropdownElem.value;
+  const isAgentMode = isAgentModel(openAIModel);
+  let baseURL = state.baseURL;
+  if (isAgentMode) {
+    /* Agent mode: no OpenAI account, no API key - the bridge answers. */
+    baseURL = import_config.getBridgeUrl();
+    if (!baseURL) {
+      setErrorMessage("Set the Arena bridge URL first (link icon next to the key icon).");
+      return false;
+    }
+  }
   let savedApiKey = await getApiKey(state.apiKeyName);
-  if (!savedApiKey && import_config.isBridgeConfigured()) {
-    /* The Arena bridge does its own authentication - a placeholder key is enough. */
-    savedApiKey = "arena-bridge";
+  if (!savedApiKey && isAgentMode) {
+    /* The bridge does its own authentication - a placeholder key is enough. */
+    savedApiKey = AGENT_PLACEHOLDER_KEY;
   }
   if (!savedApiKey) {
     setErrorMessage(import_i18n.i18n.getMessage("noApiKeyInfoMessage"));
     return false;
   }
-  const modelDropdownElem = document.getElementById("model-dropdown");
-  const openAIModel = modelDropdownElem.value;
   const nSlicerElem = document.getElementById("n-slider");
   const n = parseInt(nSlicerElem.value);
   const temperatureSlicerElem = document.getElementById("temperature-slider");
@@ -192,7 +217,7 @@ async function sendButtonClickHandler(evt, state) {
   state.index = 0;
   let resultDataObj;
   try {
-    resultDataObj = await send(endpoint, sendData, "POST", savedApiKey, state);
+    resultDataObj = await send(endpoint, sendData, "POST", savedApiKey, state, baseURL);
   } catch (err) {
     setErrorMessage(err);
     return false;
@@ -250,6 +275,7 @@ function setInitialInstructionText() {
   const openAIModel = modelDropdownElem.value;
   switch (openAIModel) {
     case "gpt-4-vision":
+    case "arena-agent-image":
       let instruction = import_i18n.i18n.getMessage("imageDescriptionDefaultInstruction");
       if (opionalInputTextareaElem.value !== "") {
         instruction += " " + import_i18n.i18n.getMessage("instructionAdditionForExistingAltText");
@@ -264,6 +290,7 @@ function setInitialOptionalText() {
   const openAIModel = modelDropdownElem.value;
   switch (openAIModel) {
     case "gpt-4-vision":
+    case "arena-agent-image":
       const altTextItem = getAltTextItem();
       if (!altTextItem) {
         break;
@@ -315,6 +342,42 @@ async function getDataForRequest(openAIModel, editText = "", instructionText = "
   let endpoint;
   let sendDataObj;
   switch (openAIModel) {
+    /* Arena agent: no OpenAI model, the bridge queues the request for the agent. */
+    case "arena-agent":
+    case "arena-agent-image":
+      let agentMessageContent = instructionText.trim();
+      if (editText.trim() !== "") {
+        agentMessageContent = agentMessageContent.replace(/[:]$/, "") + ": " + state.optionalTextMarker + editText + state.optionalTextMarker;
+      }
+      endpoint = "v1/chat/completions";
+      if (openAIModel === AGENT_IMAGE_MODEL) {
+        const agentImageBase64 = await getSelectedItemAsBase64();
+        if (!agentImageBase64) {
+          setErrorMessage(import_i18n.i18n.getMessage("noImageUrlErrorMessage"));
+          return null;
+        }
+        sendDataObj = {
+          "model": AGENT_MODEL,
+          "messages": [{
+            "role": "user",
+            "content": [
+              { "type": "text", "text": agentMessageContent },
+              { "type": "image_url", "image_url": { "url": agentImageBase64 } }
+            ]
+          }],
+          "temperature": temperature,
+          "n": n,
+          "max_tokens": 1e3
+        };
+      } else {
+        sendDataObj = {
+          "model": AGENT_MODEL,
+          "messages": [{ "role": "user", "content": agentMessageContent }],
+          "temperature": temperature,
+          "n": n
+        };
+      }
+      break;
     /* Chat */
     case "gpt-5":
     case "gpt-5-mini":
@@ -379,14 +442,13 @@ async function getDataForRequest(openAIModel, editText = "", instructionText = "
     sendDataObj
   };
 }
-async function send(endpoint, sendData, method, apiKey, state) {
+async function send(endpoint, sendData, method, apiKey, state, baseURL = state.baseURL) {
   if (endpoint === "") {
     throw new Error("Argument [endpoint] must be a not empty string.");
   }
   if (apiKey === "") {
     throw new Error("Argument [apiKey] must be a not empty string.");
   }
-  const baseURL = state.baseURL;
   const url = new URL(endpoint, baseURL);
   let headers = new Headers();
   headers.append("Authorization", `Bearer ${apiKey}`);
@@ -409,7 +471,7 @@ async function send(endpoint, sendData, method, apiKey, state) {
     if (!jobId) {
       throw new Error("The bridge accepted the request but returned no job id.");
     }
-    return await waitForJobResult(jobId, apiKey, state);
+    return await waitForJobResult(jobId, apiKey, state, baseURL);
   }
   if (!response.ok) {
     console.log(`${import_i18n.i18n.getMessage("fetchResponseErrorMessage")} Status: ${response.status}`);
@@ -421,7 +483,7 @@ async function send(endpoint, sendData, method, apiKey, state) {
  * Polls an Arena bridge job until the agent has answered it.
  * The server holds each poll open for up to 20 seconds, so this is quiet.
  */
-async function waitForJobResult(jobId, apiKey, state) {
+async function waitForJobResult(jobId, apiKey, state, baseURL = state.baseURL) {
   const spinnerElem = document.getElementById("spinner");
   const spinnerText = spinnerElem ? spinnerElem.textContent : "";
   if (spinnerElem) {
@@ -460,11 +522,39 @@ async function waitForJobResult(jobId, apiKey, state) {
   throw new Error("Timed out waiting for the agent (15 min).");
 }
 function modelDropdownChangeHandler(evt, state) {
+  updateAgentMode(state);
   setNavi(state);
   clearErrorMessage();
   registerAppEventHandler();
   removeAppEventHandler();
   setInitialPanelValues();
+}
+/**
+ * Small helper - some UXP builds do not support classList.toggle(..., force).
+ */
+function setClass(elem, className, isSet) {
+  if (!elem || !elem.classList) return false;
+  if (isSet) {
+    elem.classList.add(className);
+  } else {
+    elem.classList.remove(className);
+  }
+  return true;
+}
+/**
+ * Agent mode needs no model settings and no API key, so those controls are hidden.
+ */
+function updateAgentMode(state) {
+  const isAgentMode = isAgentModel(getSelectedModel());
+  const settingsGroupElem = document.getElementById("settings-group");
+  const apiKeyButtonElem = document.getElementById("api-key-button");
+  setClass(settingsGroupElem, "display-none", isAgentMode);
+  setClass(apiKeyButtonElem, "display-none", isAgentMode);
+  const instructionTextareaElem = document.getElementById("instruction-textarea");
+  if (instructionTextareaElem && isAgentMode) {
+    instructionTextareaElem.setAttribute("placeholder", "Ask the agent …");
+  }
+  return isAgentMode;
 }
 async function apiKeyButtonClickHandler(evt, state) {
   if ("altKey" in evt && evt.altKey) {

@@ -8,17 +8,19 @@
 	<body>
 		<sp-theme scale="medium">
 			<div id="model-group">
-				<sp-dropdown id="model-dropdown" placeholder="Model ..." style="width: 320px">
+				<sp-dropdown id="model-dropdown" placeholder="Mode ..." style="width: 320px">
 					<sp-menu id="model-menu" slot="options" selectedoptions="">
-						<sp-menu-item value="gpt-5" selected data-t="modelGpt5Label">Text Completions (gpt-5)</sp-menu-item>
+						<sp-menu-item value="arena-agent" selected>Arena agent (no API key)</sp-menu-item>
+						<sp-menu-item value="arena-agent-image">Arena agent · image description</sp-menu-item>
+						<!-- OpenAI models are no longer part of the default flow. Uncomment to use them
+						     again (then enter an API key with the key icon and pick a model here):
+						<sp-menu-item value="gpt-5" data-t="modelGpt5Label">Text Completions (gpt-5)</sp-menu-item>
 						<sp-menu-item value="gpt-5-mini" data-t="modelGpt5MiniLabel">Text Completions (gpt-5-mini)</sp-menu-item>
 						<sp-menu-item value="o4-mini" data-t="modelGpto4MiniLabel">Text Completions (o4-mini)</sp-menu-item>
 						<sp-menu-item value="gpt-4.1" data-t="modelGpt41Label">Text Completions (gpt-4.1)</sp-menu-item>
 						<sp-menu-item value="gpt-4o" data-t="modelGpt4oLabel">Text Completions (gpt-4o)</sp-menu-item>
-						<!-- <sp-menu-item value="gpt-4-turbo" data-t="modelGpt4TurboLabel">Text Completions (gpt-4-turbo)</sp-menu-item> -->
-						<!-- <sp-menu-item value="gpt-4" data-t="modelGpt4Label">Text Completions (gpt-4)</sp-menu-item> -->
-						<!-- <sp-menu-item value="gpt-3.5-turbo" data-t="modelGpt35Label">Text Completions (gpt-3.5-turbo)</sp-menu-item> -->
 						<sp-menu-item value="gpt-4-vision" data-t="modelGpt4VisionLabel">Image Description (gpt-4o)</sp-menu-item>
+						-->
 					</sp-menu>
 				</sp-dropdown>
 				<div id="model-button-group">

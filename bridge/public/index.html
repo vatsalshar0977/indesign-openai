@@ -57,7 +57,8 @@
       <button onclick="copyUrl()">Copy</button>
     </div>
     <p class="muted" style="margin:8px 0 0">
-      In InDesign: <b>OpenAI-4-InDesign</b> panel → click the <b>link icon</b> (next to the key icon) → paste this URL → switch <b>Agent link</b> on.
+      In InDesign: open the <b>OpenAI-4-InDesign</b> panel → click the <b>link icon</b> → paste this URL.
+      That is all: the agent link switches itself on, no API key and no model selection involved.
       The panel status line turns green as soon as InDesign is talking to this server.
     </p>
   </section>
@@ -95,7 +96,9 @@
         <tr><td class="mono">doc.export</td><td class="mono">{ format: "pdf"|"idml"|"jpeg"|"png" }</td><td>Exports to the plugin temp folder, returns the file path</td></tr>
       </table>
     </div>
-    <p class="muted">Model requests (Send button in the panel) arrive as jobs above; the agent answers them and the text lands back in the panel — no OpenAI key involved.</p>
+    <p class="muted">Requests typed in the panel arrive as jobs above; the agent answers them and the text lands back in the
+      panel. With the agent link on, the agent can also run these commands directly — read the selection, rewrite it,
+      inspect the document — without anyone touching the panel.</p>
   </section>
 </main>
 

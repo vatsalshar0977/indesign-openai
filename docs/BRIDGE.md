@@ -1,20 +1,21 @@
-# Arena bridge — InDesign without an OpenAI key
+# Arena bridge — InDesign driven by an agent, no ChatGPT involved
 
-The bridge is a small zero-dependency Node server that sits between the InDesign panel and
-whoever answers the request. It gives you two things:
+The bridge is a small zero-dependency Node server between InDesign and the agent.
+There is **no OpenAI account, no API key and no model selection** anywhere in the default
+flow: the panel sends the request here, the agent answers it.
 
-1. **Model channel** — the panel keeps working exactly as before, but instead of calling
-   `api.openai.com` it hands the request to this server. The request becomes a *job* in a
-   queue; an agent (or you, in the dashboard) writes the answer and it is delivered back to
-   the panel as a normal OpenAI-shaped response. **No OpenAI account or API key needed.**
-2. **Control channel** — commands can be sent the other way: from here into InDesign
-   (read the document, replace text, list frames, export a PDF …) and the result comes back.
+Two directions, one link:
+
+1. **Ask the agent** — type an instruction in the panel, press **Send**. The request becomes
+   a job here; the agent reads it, writes the answer, and it appears in the panel.
+2. **Agent drives InDesign** — the agent sends commands the other way: read the selection,
+   rewrite it, inspect the document, list frames, export a PDF.
 
 ```
-InDesign panel  ──POST /v1/chat/completions──▶  bridge  ──job queue──▶  agent (or dashboard)
-                ◀──202 + poll /v1/jobs/:id───           ◀──complete────
+panel  ──POST /v1/chat/completions──▶  bridge  ──job──▶  agent
+       ◀──202 + poll /v1/jobs/:id───          ◀──answer──
 
-bridge ──POST /v1/indesign/commands──▶ queue ──long poll──▶ InDesign panel ──result──▶ bridge
+agent ──POST /v1/indesign/commands──▶ queue ──long poll──▶ panel ──result──▶ agent
 ```
 
 ## 1 · Start the bridge
@@ -31,19 +32,19 @@ npm run bridge                 # or: PORT=8787 BRIDGE_TOKEN=secret node bridge/s
 | `BRIDGE_DATA_DIR` | `bridge/.data` | jobs, commands and uploaded images |
 
 Open `http://localhost:8787/` (or the public URL) for the dashboard: connection status,
-queued requests, command results and the address to paste into the plugin.
+queued requests, command results, and the address to paste into the plugin.
 
 ## 2 · Point the plugin at the bridge
 
 **Packaged plugin (`.ccx`)** — bake the address in at build time:
 
 ```bash
-BRIDGE_URL=https://8787-xxxxx.e2b.app npm run build     # -> dist/openai-4-indesign.ccx
+BRIDGE_URL=https://8787-xxxxx.e2b.app npm run build     # -> Plugin/openai-4-indesign.ccx
 ```
 
 That writes the URL into `lib/config.js` and adds its origin to
 `manifest.json > requiredPermissions.network.domains`, which UXP requires before the panel
-may talk to a host. Install the `.ccx` as usual (double-click; unsigned plugins need
+may talk to a host. Install the `.ccx` by double-clicking it (unsigned plugins need
 InDesign's player debug mode enabled).
 
 **From source with the UXP Developer Tool**:
@@ -52,46 +53,46 @@ InDesign's player debug mode enabled).
 node scripts/set-url.mjs https://8787-xxxxx.e2b.app     # adds the origin to src/manifest.json
 ```
 
-**At runtime** — click the **link icon** next to the key icon in the panel and paste the
-bridge URL. Whatever you enter there wins over the baked-in value. Leave it empty to go
-back to talking to `api.openai.com` directly.
+**At runtime** — click the **link icon** in the panel and paste the bridge URL. Whatever is
+entered there wins over the baked-in value.
 
-> The address is fixed at build time because UXP whitelists network domains in the
-> manifest. If the bridge moves to a new host, rebuild (or re-run `set-url.mjs`).
+> The address is fixed at build time because UXP whitelists network domains in the manifest.
+> If the bridge moves to a new host, rebuild (or re-run `set-url.mjs`).
 
-## 3 · Use it
+## 3 · Using it in InDesign
 
-- **Model requests**: type an instruction in the panel and press **Send**. The request shows
-  up on the dashboard under *Waiting for the agent*. Answer it there, or let the agent pick
-  it up:
-  ```bash
-  node bridge/cli.mjs jobs                       # what is waiting?
-  node bridge/cli.mjs job job_ab12cd34           # read the full request
-  node bridge/cli.mjs complete job_ab12cd34 --text "Guten Morgen"
-  #   … --file reply.txt      answer from a file
-  #   … --stdin               answer from a pipe
-  node bridge/cli.mjs media job_ab12cd34         # paths of attached images (image description)
-  node bridge/cli.mjs fail job_ab12cd34 --error "too blurry"
-  ```
-  The panel polls every ~20 s and shows the answer the moment it lands — the spinner reads
-  *“Waiting for the agent …”* until then. Image uploads (the `gpt-4-vision` model) are saved
-  to `bridge/.data/media/` so they can be viewed.
-- **No API key is needed in bridge mode** — the panel uses a placeholder key which the
-  bridge ignores. Alt-click the key icon to remove a real key when you switch back.
+The panel starts in **agent mode**:
 
-## 4 · Drive InDesign from here
+- the mode dropdown offers *Arena agent* and *Arena agent · image description*;
+- the API key field and the model settings (number of choices, creativity) are hidden —
+  nothing to fill in, nothing to sign up for;
+- the **agent link** is on by default, so the agent can also work on the document directly.
 
-Tick **Agent link** in the panel. The panel starts long-polling the bridge; each command is
-executed inside `app.doScript()` (one undo step per command, no `eval`, only the ops below
-are accepted).
+Type an instruction (optionally import the selected text with the arrow button) and press
+**Send**. The panel shows *“Waiting for the agent …”*, the request appears in the dashboard
+queue, and the answer lands in the panel as soon as the agent replies — the spinner polls
+every ~20 s, so there is no timeout to worry about. Press **Insert** to place it in the
+document, as before.
+
+For the image description mode, select an image and send: the panel exports the selection
+and uploads it with the request; the bridge saves it to `bridge/.data/media/` so the agent
+can actually look at it.
+
+## 4 · The agent's side
 
 ```bash
-node bridge/cli.mjs status
-node bridge/cli.mjs cmd ping                                  # proves the round trip
-node bridge/cli.mjs cmd doc.info                              # active document
-node bridge/cli.mjs cmd selection.get                         # text of the current selection
-node bridge/cli.mjs cmd selection.set --args '{"text":"Hi"}'   # replace it
-node bridge/cli.mjs cmds                                      # history + results
+node bridge/cli.mjs status                     # bridge + InDesign up?
+node bridge/cli.mjs jobs                       # what is waiting?
+node bridge/cli.mjs job job_ab12cd34           # read the request
+node bridge/cli.mjs complete job_ab12cd34 --file reply.txt   # answer (or --text / --stdin)
+node bridge/cli.mjs media job_ab12cd34         # paths of uploaded images
+
+node bridge/cli.mjs read                       # text of the current selection
+node bridge/cli.mjs frames                     # text frames of the active spread
+node bridge/cli.mjs info                       # active document
+node bridge/cli.mjs write --file new-text.txt  # replace the selection
+node bridge/cli.mjs cmd frame.set --args '{"index":0,"text":"Hi"}'
+node bridge/cli.mjs cmds                       # command history + results
 ```
 
 | command | args | returns |
@@ -109,9 +110,21 @@ node bridge/cli.mjs cmds                                      # history + result
 | `links.list` | `limit` | linked images and their status |
 | `doc.export` | `format: pdf \| idml \| jpeg \| png \| eps` | exports into the plugin temp folder, returns the path |
 
-Unknown commands come back as an error instead of doing something unexpected.
+Unknown commands come back as an error instead of doing something unexpected. Long text is
+easier through a file: `cmd selection.set --text-file reply.txt`.
 
-## 5 · API
+## 5 · Bringing OpenAI back (optional)
+
+The upstream behaviour is still in the code, it is just not the default:
+
+1. uncomment the `gpt-*` entries in `src/index.html` (or in the built panel's markup),
+2. pick a model in the dropdown — the panel then re-shows the key icon and the sliders,
+3. enter an OpenAI key with the key icon.
+
+Requests for `gpt-*` models go straight to `https://api.openai.com` as before; requests for
+the agent models go to the bridge.
+
+## 6 · API
 
 | method | path | who | what |
 | --- | --- | --- | --- |
@@ -125,12 +138,12 @@ Unknown commands come back as an error instead of doing something unexpected.
 | `POST` | `/v1/indesign/result` | plugin | `{ id, ok, result \| error }` |
 | `POST` | `/v1/indesign/commands` | agent | `{ op, args }`, `?wait=` waits for the result |
 | `GET` | `/v1/indesign/commands/:id` | agent | status/result of one command |
-| `GET` | `/api/health`, `/api/state`, `/api/events` | dashboard | health, full state, SSE stream |
+| `GET` | `/api/health`, `/api/state`, `/api/config`, `/api/events` | dashboard | health, full state, config, SSE stream |
 
 Agent endpoints take the token as `x-bridge-token`, `Authorization: Bearer …` or
 `?token=…` (only enforced when `BRIDGE_TOKEN` is set).
 
-## 6 · Tests
+## 7 · Tests
 
 ```bash
 npm run bridge &                 # in one shell
@@ -138,4 +151,5 @@ npm test                         # mocked UXP + InDesign, runs against the live 
 ```
 
 `test/smoke.mjs` loads the real panel code with mocked `uxp`/`indesign` modules and checks
-both round trips: Send → job → answer → output field, and command → poll → DOM → result.
+both round trips, that agent mode hides the key/model controls, and that the agent link
+comes up by itself.

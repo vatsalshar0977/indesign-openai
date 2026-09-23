@@ -50,11 +50,12 @@ function isBridgeConfigured() {
   return getBridgeUrl() !== "";
 }
 
+/** On unless it was explicitly switched off - the agent link is the point of this fork. */
 function isAgentLinkEnabled() {
   try {
-    return localStorage.getItem(STORAGE_KEY_ENABLED) === "1";
+    return localStorage.getItem(STORAGE_KEY_ENABLED) !== "0";
   } catch (err) {
-    return false;
+    return true;
   }
 }
 
