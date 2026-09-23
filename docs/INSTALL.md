@@ -30,6 +30,9 @@ The source in `src/` already has the bridge address baked in, so there is nothin
 
 ## Option B — install the packaged `.ccx`
 
+> **On Windows?** Use **[docs/INSTALL-WINDOWS.md](INSTALL-WINDOWS.md)** — exact PowerShell
+> commands for player debug mode, UPIA and the folder-copy route.
+
 1. Enable player debug mode (once per machine). Run in Terminal, then restart InDesign.
    Try `CSXS.9` … `CSXS.12` if one version does nothing.
 

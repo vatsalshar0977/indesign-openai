@@ -146,8 +146,9 @@ Agent endpoints take the token as `x-bridge-token`, `Authorization: Bearer …` 
 ## 7 · Installing the plugin / running the bridge locally
 
 - The `.ccx` is unsigned — if InDesign will not install it, load the plugin straight from
-  `src/` with the UXP Developer Tool or switch on player debug mode: see
-  **[docs/INSTALL.md](./INSTALL.md)**.
+  `src/` with the UXP Developer Tool, copy `src/` into the UXP plugins folder, or switch on
+  player debug mode: **[docs/INSTALL.md](./INSTALL.md)**, and
+  **[docs/INSTALL-WINDOWS.md](./INSTALL-WINDOWS.md)** for the exact Windows commands.
 - `standalone/indesign-bridge.mjs` is a single-file build of this server (no npm install):
   `node indesign-bridge.mjs`, optionally with `UPSTREAM=…` to relay jobs to a hosted bridge
   so the agent can answer them.

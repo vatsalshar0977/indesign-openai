@@ -23,7 +23,8 @@ npm test           # round-trip check with mocked InDesign
 
 Setup, command reference and API: **[docs/BRIDGE.md](docs/BRIDGE.md)**.
 Trouble installing the plugin (unsigned `.ccx`), or want the bridge on your own machine?
-**[docs/INSTALL.md](docs/INSTALL.md)**.
+**[docs/INSTALL.md](docs/INSTALL.md)** — Windows walkthrough:
+**[docs/INSTALL-WINDOWS.md](docs/INSTALL-WINDOWS.md)**.
 OpenAI models can still be switched back on (see §5 of the doc).
 
 ## Usage
