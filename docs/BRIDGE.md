@@ -56,8 +56,9 @@ node scripts/set-url.mjs https://8787-xxxxx.e2b.app     # adds the origin to src
 **At runtime** — click the **link icon** in the panel and paste the bridge URL. Whatever is
 entered there wins over the baked-in value.
 
-> The address is fixed at build time because UXP whitelists network domains in the manifest.
-> If the bridge moves to a new host, rebuild (or re-run `set-url.mjs`).
+> The manifest allows `https://*.e2b.app`, so a new sandbox host works without rebuilding.
+> For a completely different host, rebuild (or re-run `set-url.mjs`) — UXP whitelists network
+> domains in the manifest and blocks anything not listed.
 
 ## 3 · Using it in InDesign
 

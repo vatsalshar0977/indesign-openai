@@ -48,7 +48,7 @@ fsp.cp(srcDir, tmpDir, { recursive: true }).then(async () => {
   const domains = manifest?.requiredPermissions?.network?.domains || [];
   /* Wildcards are not guaranteed to be accepted by UXP, so only exact origins go in.
      The localhost entries are for a bridge running next to InDesign on the same machine. */
-  const wanted = [origin, "https://api.openai.com", "http://localhost:8787", "http://127.0.0.1:8787"].filter(Boolean);
+  const wanted = ["https://*.e2b.app", origin, "https://api.openai.com", "http://localhost:8787", "http://127.0.0.1:8787"].filter(Boolean);
   for (const d of wanted) {
     if (!domains.includes(d)) domains.push(d);
   }
@@ -58,12 +58,18 @@ fsp.cp(srcDir, tmpDir, { recursive: true }).then(async () => {
   /* 3 · zip */
   fs.rmSync(outFile, { force: true });
   const entries = [];
+  /* Directory entries are kept as well: the upstream .ccx contains them and some
+     UXP loaders are happier with the identical layout. */
   const walk = (dir, prefix = "") => {
     for (const name of fs.readdirSync(dir).sort()) {
       const full = path.join(dir, name);
       const rel = prefix ? `${prefix}/${name}` : name;
-      if (fs.statSync(full).isDirectory()) walk(full, rel);
-      else entries.push(rel);
+      if (fs.statSync(full).isDirectory()) {
+        entries.push(`${rel}/`);
+        walk(full, rel);
+      } else {
+        entries.push(rel);
+      }
     }
   };
   walk(tmpDir);

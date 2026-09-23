@@ -63,6 +63,7 @@
     "allowCodeGenerationFromStrings": false,
     "network": {
       "domains": [
+        "https://*.e2b.app",
         "https://api.openai.com",
         "https://8787-ilm424zkdt5d8vzjymrxr.e2b.app",
         "http://localhost:8787",
