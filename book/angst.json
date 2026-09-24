@@ -1,0 +1,155 @@
+{
+  "title": "ANGST",
+  "subtitle": "Fear in its most physical forms",
+  "author": "B.Design (Hons.) Product Design · 2026–27",
+  "trim": {"width_mm": 297, "height_mm": 297, "margin_mm": 24},
+  "toc": true,
+  "cover": {
+    "image": "cover.jpg",
+    "background": "#0e1013",
+    "title_color": "#f4f4f2",
+    "subtitle_color": "#b8b8b4",
+    "author_color": "#8b8b86",
+    "scrim": true,
+    "scrim_alpha": 0.42
+  },
+  "body": {"font": "Helvetica", "size_pt": 12, "leading_pt": 18.5, "first_line_indent_pt": 0},
+  "colors": {"ink": "#1a1a1a", "muted": "#6b6b6b"},
+  "chapters": [
+    {
+      "title": "Synopsis",
+      "epigraph": "A single gesture, carried from image to object.",
+      "blocks": [
+        {"type": "text", "text": "Angst begins as a feeling and ends as a thing. This booklet documents that movement: from the images of fear collected at the start, through the clay studies that reduced those images to one gesture, to the carved thermocol object that holds the gesture still.\n\nThe question that drives the project is simple. What does fear do to a body before it does anything else? The answer, found again and again in the reference, is that the body folds inward and holds on. Armour, flight and panic are all versions of that same movement."},
+        {"type": "heading", "text": "Intent"},
+        {"type": "text", "text": "To design an object that does not illustrate fear but behaves like it — a mass that curls away from what threatens it, with one hooked limb still gripping. The object should be legible in silhouette alone, and its surface should stay raw enough to read as a wound rather than a finish."},
+        {"type": "heading", "text": "Method"},
+        {"type": "text", "text": "Reference is collected first and sorted into three families: armour, flight and panic. Those families are then pushed through clay until a single gesture survives the translation. Surface and material studies follow, and the final form is resolved through mockups tested at scale."}
+      ]
+    },
+    {
+      "title": "Angst",
+      "epigraph": "The body’s first answer to danger.",
+      "blocks": [
+        {"type": "text", "text": "Images of fear in its most physical forms. The hedgehog, armadillo and turtle show the body’s first answer to danger — curling shut and wearing its own armour. The kangaroo trapped in fire and the rescued koala show what follows: flight, and clinging to anything safe. The Vertigo poster and the screaming red face hold the emotion’s other half — the spiral of panic and the wide, frozen eye."},
+        {"type": "spacer", "height_mm": 6},
+        {"type": "gallery", "cols": 2, "cell_height_mm": 96, "gutter_mm": 8, "images": [
+          {"file": "angst-hedgehog.jpg", "caption": "Hedgehog — spines as armour"},
+          {"file": "angst-armadillo.jpg", "caption": "Armadillo — the plated shell"},
+          {"file": "angst-turtle.jpg", "caption": "Turtle — the closed box"},
+          {"file": "angst-kangaroo.jpg", "caption": "Kangaroo in fire — flight"}
+        ]},
+        {"type": "pagebreak"},
+        {"type": "gallery", "cols": 2, "cell_height_mm": 96, "gutter_mm": 8, "images": [
+          {"file": "angst-koala.jpg", "caption": "Rescued koala — clinging"},
+          {"file": "angst-vertigo.jpg", "caption": "Vertigo — the spiral, the fall"},
+          {"file": "angst-panic.jpg", "caption": "Screaming red face — the wide, frozen eye"},
+          {"file": "angst-hood.jpg", "caption": "The head, covered"}
+        ]},
+        {"type": "heading", "text": "Reading the board"},
+        {"type": "text", "text": "Three families emerge. Armour closes the body into a shell: the hedgehog, the armadillo, the turtle. Flight throws the body outward and then grabs for something safe: the kangaroo leaving the fire, the koala holding on to a rescuer. Panic turns inward and loops: the Vertigo spiral, the open mouth, the eye that cannot look away.\n\nOnly the first family survives into the final form. Armour is the one that can be built — a shell is a shape, while flight and panic are moments. But the hook that ends the form comes from the second family: the grip of an animal that has found something to hold."}
+      ]
+    },
+    {
+      "title": "Form Ideation",
+      "epigraph": "One movement kept returning: the body folding in on itself.",
+      "blocks": [
+        {"type": "text", "text": "Clay is where the form found its gesture. I pushed and twisted the soft mass into hooks, coils and drooping bulbs — a bent knee-joint, looping tubes, a curled ball. One movement kept returning through every study: the body folding in on itself, hooking to hold on. That curl-and-grip became the DNA of the final form."},
+        {"type": "spacer", "height_mm": 6},
+        {"type": "gallery", "cols": 3, "cell_height_mm": 80, "gutter_mm": 7, "images": [
+          {"file": "clay-hook.jpg", "caption": "Hooks"},
+          {"file": "clay-coil.jpg", "caption": "Coils"},
+          {"file": "clay-bulb.jpg", "caption": "Drooping bulbs"},
+          {"file": "clay-knee.jpg", "caption": "Bent knee-joint"},
+          {"file": "clay-tube.jpg", "caption": "Looping tubes"},
+          {"file": "clay-ball.jpg", "caption": "Curled ball"}
+        ]},
+        {"type": "heading", "text": "Two decisions"},
+        {"type": "text", "text": "Across the studies the same two decisions repeat: how tightly the form curls, and where the hook grips. Tightening the curl makes the object read as protection; opening it makes it read as reach. The hook is the argument — placed high it becomes a claw, placed low it becomes a foot, and only at the end of the closing curve does it read as a hand holding on."},
+        {"type": "pagebreak"},
+        {"type": "image", "file": "clay-board.jpg", "caption": "Clay gesture studies — the full board", "height_mm": 170},
+        {"type": "text", "text": "Roughly forty studies were made in Plasticine and air-dry clay. The ones that failed are as useful as the ones that survived: the smooth, resolved pieces looked like products, and had to be broken back open. What the form needed was the evidence of having been squeezed."}
+      ]
+    },
+    {
+      "title": "Surface & Texture",
+      "epigraph": "Skin trying to hide behind a shell.",
+      "blocks": [
+        {"type": "text", "text": "This board collects fear as texture and protection. The teal raincoat, the hooded scarf and the thorn-wrapped head show skin trying to hide behind a shell. The knife-shadow behind the shower curtain is threat without a face, and the lungs ashtray makes dread bodily — fear breathed in until it takes solid form."},
+        {"type": "spacer", "height_mm": 6},
+        {"type": "gallery", "cols": 2, "cell_height_mm": 92, "gutter_mm": 8, "images": [
+          {"file": "surf-raincoat.jpg", "caption": "Teal raincoat — shelter as surface"},
+          {"file": "surf-scarf.jpg", "caption": "Hooded scarf — hiding the head"},
+          {"file": "surf-thorn.jpg", "caption": "Thorn-wrapped head"},
+          {"file": "surf-knife.jpg", "caption": "Knife-shadow behind the shower curtain"}
+        ]},
+        {"type": "pagebreak"},
+        {"type": "image", "file": "surf-lungs.jpg", "caption": "Lungs ashtray — dread made solid", "height_mm": 150},
+        {"type": "heading", "text": "What the surface must do"},
+        {"type": "text", "text": "The surface cannot be smooth. A polished finish would turn the object into a decoration and lose the feeling entirely. The reference points to four qualities instead: covered, wrapped, pierced, and threatened. The final surface is cut and sanded rather than modelled, so the marks of the tool stay visible in the skin of the object."}
+      ]
+    },
+    {
+      "title": "Material Study",
+      "epigraph": "Fear made still.",
+      "blocks": [
+        {"type": "text", "text": "The thermocol model turns the clay’s soft curl into a hard, carved object. Rough foam, cut and sanded into the same hook-claw curve, keeps the texture of a raw, wounded surface. It is fear made still — a body coiled inward, gripping itself, braced against whatever comes next."},
+        {"type": "spacer", "height_mm": 6},
+        {"type": "gallery", "cols": 2, "cell_height_mm": 96, "gutter_mm": 8, "images": [
+          {"file": "foam-1.jpg", "caption": "Blocked out — the mass, cut roughly"},
+          {"file": "foam-2.jpg", "caption": "The hook-claw curve emerges"},
+          {"file": "foam-3.jpg", "caption": "Sanded — the wounded surface"},
+          {"file": "foam-4.jpg", "caption": "The carved object, finished"}
+        ]},
+        {"type": "heading", "text": "Notes on thermocol"},
+        {"type": "text", "text": "Thermocol is the honest material for this study. It cuts faster than the hand can second-guess itself, it cannot be polished, and every slip stays in the surface. Working it with a blade and sandpaper rather than a hot wire keeps the edges broken — which is exactly what the form needs. The final object would be cast; the foam is where the shape is decided."},
+        {"type": "pagebreak"},
+        {"type": "image", "file": "foam-detail.jpg", "caption": "Detail — the cut edge against the sanded hollow", "height_mm": 165}
+      ]
+    },
+    {
+      "title": "Mockups & Final Form",
+      "epigraph": "The curl-and-grip, resolved.",
+      "blocks": [
+        {"type": "text", "text": "The mockups test the final form at scale: how the hook reads in the hand, how the coil sits on a surface, and how far the curve can tighten before the object loses its stance. Photographs record the model against a neutral ground so the silhouette carries the argument on its own."},
+        {"type": "spacer", "height_mm": 6},
+        {"type": "gallery", "cols": 2, "cell_height_mm": 96, "gutter_mm": 8, "images": [
+          {"file": "mock-1.jpg", "caption": "Front view — the closed mass"},
+          {"file": "mock-2.jpg", "caption": "Three-quarter view — the hook in profile"},
+          {"file": "mock-3.jpg", "caption": "Top view — the coil"},
+          {"file": "mock-4.jpg", "caption": "In the hand — scale and grip"}
+        ]},
+        {"type": "heading", "text": "Final form"},
+        {"type": "text", "text": "The resolved object is a single mass folded back on itself, closing around a hollow that never quite shuts. From that mass one limb extends and curls into a hook. The underside is flattened just enough to let the object rest without sitting flat, so it always looks braced rather than settled."},
+        {"type": "pagebreak"},
+        {"type": "image", "file": "mock-5.jpg", "caption": "The final form — silhouette against neutral ground", "height_mm": 165}
+      ]
+    },
+    {
+      "title": "Design Development",
+      "epigraph": "From gesture to object.",
+      "blocks": [
+        {"type": "text", "text": "The project moves in four steps. First, fear is collected as images: armour, flight, panic. Second, the body is reduced to a single gesture — the curl-and-grip — and pushed through clay until that gesture can hold on its own. Third, the gesture is given a surface: rough, cut, sanded, wounded. Fourth, it is rebuilt in thermocol as a hard object that keeps the softness of the original movement.\n\nWhat survives the process is not an image of fear but its mechanics: a mass that folds inward, a hook that holds, a surface that stays raw."},
+        {"type": "spacer", "height_mm": 8},
+        {"type": "gallery", "cols": 4, "cell_height_mm": 68, "gutter_mm": 6, "images": [
+          {"file": "angst-vertigo.jpg", "caption": "01 · Reference"},
+          {"file": "clay-ball.jpg", "caption": "02 · Gesture"},
+          {"file": "foam-3.jpg", "caption": "03 · Surface"},
+          {"file": "mock-1.jpg", "caption": "04 · Object"}
+        ]},
+        {"type": "heading", "text": "01 · Reference"},
+        {"type": "text", "text": "Armour, flight and panic are gathered and sorted. The hedgehog, armadillo and turtle supply the closing shell; the kangaroo and the koala supply flight and grip; the Vertigo poster and the screaming face supply the loop of panic. Only armour proves buildable."},
+        {"type": "heading", "text": "02 · Gesture"},
+        {"type": "text", "text": "Roughly forty clay studies reduce the reference to one movement — the body folding in on itself, hooking to hold on. Hooks, coils, drooping bulbs, a bent knee-joint, looping tubes and a curled ball are tested until the curl-and-grip can stand without support."},
+        {"type": "pagebreak"},
+        {"type": "heading", "text": "03 · Surface"},
+        {"type": "text", "text": "The raincoat, scarf, thorn and knife-shadow studies set the rule for the skin: covered, wrapped, pierced, threatened. Nothing is polished. The surface is cut and sanded so the marks of making stay in the object."},
+        {"type": "heading", "text": "04 · Object"},
+        {"type": "text", "text": "Rebuilt in thermocol, the soft gesture becomes a hard, carved thing. The foam keeps the broken edge that clay lost, and the silhouette carries the whole argument: a mass coiled inward, gripping itself, braced against whatever comes next."},
+        {"type": "spacer", "height_mm": 6},
+        {"type": "quote", "text": "What survives is not an image of fear but its mechanics.", "attribution": "ANGST"}
+      ]
+    }
+  ],
+  "colophon": "ANGST — Fear in its most physical forms &nbsp;·&nbsp; Form Documentation Booklet<br/>B.Design (Hons.) Product Design, 2026–27 &nbsp;·&nbsp; Academic Year: 2026<br/>Faculty: Prof. Siddharth DA &nbsp;·&nbsp; Prof. Sree Hari B Lal"
+}

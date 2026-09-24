@@ -42,7 +42,8 @@ try:
     from reportlab.pdfbase import pdfmetrics
     from reportlab.pdfbase.ttfonts import TTFont
     from reportlab.platypus import (BaseDocTemplate, Frame, Image, NextPageTemplate,
-                                    PageBreak, PageTemplate, Paragraph, Spacer, Table)
+                                    PageBreak, PageTemplate, Paragraph, Spacer, Table,
+                                    TableStyle)
     from PIL import Image as PILImage
 except ImportError:
     sys.exit("Missing libraries. Run:\n"
@@ -118,7 +119,7 @@ def story_for_chapter(chapter, styles, images_dir, content_w, content_h, body_cf
             path = rel if os.path.isabs(rel) else os.path.join(images_dir, rel)
             height_mm = float(block.get("height_mm", 130))
             box_h = min(height_mm * MM, content_h * 0.8)
-            if os.path.exists(path):
+            if rel and os.path.exists(path):
                 w, h = fit_image(path, content_w, box_h)
                 img = Image(path, width=w, height=h)
                 img.hAlign = "CENTER"
@@ -135,6 +136,55 @@ def story_for_chapter(chapter, styles, images_dir, content_w, content_h, body_cf
             if block.get("caption"):
                 out.append(Spacer(1, 4))
                 out.append(Paragraph(block["caption"], caption_style))
+            out.append(Spacer(1, 10))
+
+        elif kind == "gallery":
+            items = block.get("images") or []
+            cols = max(1, int(block.get("cols", 2)))
+            gutter = float(block.get("gutter_mm", 8)) * MM
+            cell_h = float(block.get("cell_height_mm", 90)) * MM
+            cell_w = (content_w - gutter * (cols - 1)) / float(cols)
+            cap_h = (caption_style.fontSize * 1.2 + 6) if any(
+                (i if isinstance(i, str) else i.get("caption")) for i in items) else 0.0
+            img_h = max(20 * MM, cell_h - cap_h)
+            rows = [items[i:i + cols] for i in range(0, len(items), cols)]
+            data, cmds = [], []
+            for row in rows:
+                cells = []
+                for item in row:
+                    if isinstance(item, str):
+                        rel, cap = item, ""
+                    else:
+                        rel, cap = (item.get("file") or ""), (item.get("caption") or "")
+                    path = rel if os.path.isabs(rel) else (os.path.join(images_dir, rel) if rel else "")
+                    flow = []
+                    if rel and os.path.exists(path):
+                        w, h = fit_image(path, cell_w, img_h)
+                        img = Image(path, width=w, height=h)
+                        img.hAlign = "CENTER"
+                        flow.append(img)
+                    else:
+                        frame = Table([[""]], colWidths=[cell_w], rowHeights=[img_h])
+                        frame.setStyle([("BOX", (0, 0), (-1, -1), 0.6, colors.HexColor("#b9b9b9")),
+                                        ("INNERGRID", (0, 0), (-1, -1), 0.25, colors.HexColor("#e3e3e3"))])
+                        flow.append(frame)
+                        print(f"  ! image missing, drew a placeholder: {path or '(none)'}")
+                    if cap:
+                        flow.append(Spacer(1, 4))
+                        flow.append(Paragraph(cap, caption_style))
+                    cells.append(flow)
+                while len(cells) < cols:
+                    cells.append("")
+                data.append(cells)
+            grid = Table(data, colWidths=[cell_w] * cols, rowHeights=[cell_h] * len(rows))
+            cmds += [("VALIGN", (0, 0), (-1, -1), "TOP"),
+                     ("LEFTPADDING", (0, 0), (-1, -1), 0),
+                     ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+                     ("TOPPADDING", (0, 0), (-1, -1), 0),
+                     ("BOTTOMPADDING", (0, 0), (-1, -1), gutter / 2.0)]
+            grid.setStyle(TableStyle(cmds))
+            out.append(Spacer(1, 8))
+            out.append(grid)
             out.append(Spacer(1, 10))
 
         elif kind == "spacer":
@@ -164,6 +214,7 @@ def build(spec, book_dir, images_dir, out_path):
     register_fonts(spec, book_dir)
 
     base = getSampleStyleSheet()
+    cover_cfg = spec.get("cover") or {}
     styles = {
         "body": ParagraphStyle("body", parent=base["BodyText"], fontName=body_font, fontSize=body_size,
                                leading=leading, alignment=TA_JUSTIFY, textColor=ink,
@@ -188,11 +239,17 @@ def build(spec, book_dir, images_dir, out_path):
         "toc_entry": ParagraphStyle("toc_entry", parent=base["BodyText"], fontName=body_font,
                                     fontSize=body_size, leading=body_size * 1.9, textColor=ink),
         "cover_title": ParagraphStyle("cover_title", parent=base["Title"], fontName=body_font,
-                                      fontSize=40, leading=48, alignment=TA_CENTER, textColor=ink),
+                                      fontSize=46, leading=54, alignment=TA_CENTER,
+                                      textColor=hex_color(cover_cfg.get("title_color"), ink)),
         "cover_subtitle": ParagraphStyle("cover_subtitle", parent=base["Normal"], fontName=body_font,
-                                         fontSize=15, leading=22, alignment=TA_CENTER, textColor=muted),
+                                         fontSize=15, leading=22, alignment=TA_CENTER,
+                                         textColor=hex_color(cover_cfg.get("subtitle_color"), muted)),
         "cover_author": ParagraphStyle("cover_author", parent=base["Normal"], fontName=body_font,
-                                       fontSize=13, leading=20, alignment=TA_CENTER, textColor=muted),
+                                       fontSize=13, leading=20, alignment=TA_CENTER,
+                                       textColor=hex_color(cover_cfg.get("author_color"), muted)),
+        "placeholder": ParagraphStyle("placeholder", parent=base["BodyText"], fontName=body_font,
+                                      fontSize=body_size * 0.8, leading=body_size * 1.1,
+                                      alignment=TA_CENTER, textColor=colors.HexColor("#9a9a9a")),
     }
 
     title = spec.get("title", "Untitled")
