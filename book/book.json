@@ -1,0 +1,22 @@
+{
+  "title": "Square",
+  "subtitle": "A sample book",
+  "author": "Arena",
+  "trim": {"width_mm": 297, "height_mm": 297, "margin_mm": 24},
+  "cover": {"image": "cover.jpg", "background": "#101828"},
+  "body": {"font": "Helvetica", "size_pt": 12, "leading_pt": 18},
+  "chapters": [
+    {"title": "One", "epigraph": "A placeholder to prove the layout.",
+     "blocks": [
+       {"type": "text", "text": "This paragraph exists only to prove that the typesetting engine works: justified text, a first-line indent, and sensible leading on a 297 by 297 millimetre page.\n\nA second paragraph follows, so the flow between paragraphs can be checked as well."},
+       {"type": "image", "file": "photo1.jpg", "caption": "A stand-in image, captioned.", "height_mm": 120},
+       {"type": "heading", "text": "A section heading"},
+       {"type": "text", "text": "More body copy to push the chapter onto a second page and show the running head and folio in place."}
+     ]},
+    {"title": "Two",
+     "blocks": [
+       {"type": "quote", "text": "Quotes get their own indented style.", "attribution": "— Someone"},
+       {"type": "text", "text": "The final chapter closes the sample."}
+     ]}
+  ]
+}
