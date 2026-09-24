@@ -1,0 +1,29 @@
+{
+  "name": "indesign-openai",
+  "version": "1.5.0",
+  "description": "Connect Adobe InDesign to an Arena agent: the Arena Link UXP plugin plus a zero-dependency bridge server (no OpenAI required).",
+  "private": true,
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "build:bridge": "BRIDGE_URL=${BRIDGE_URL:-} node scripts/build.mjs",
+    "set-url": "node scripts/set-url.mjs",
+    "bridge": "node bridge/server.mjs",
+    "bridge:cli": "node bridge/cli.mjs",
+    "status": "node bridge/cli.mjs status",
+    "jobs": "node bridge/cli.mjs jobs",
+    "watch": "node bridge/cli.mjs watch",
+    "test": "node test/smoke.mjs && node test/arena-smoke.mjs",
+    "build:standalone": "node scripts/bundle-standalone.mjs",
+    "build:all": "npm run build && npm run build:arena && npm run build:standalone",
+    "build:arena": "node scripts/build-arena.mjs",
+    "icons": "node scripts/make-icons.mjs",
+    "test:arena": "node test/arena-smoke.mjs"
+  },
+  "keywords": [
+    "indesign",
+    "uxp",
+    "openai",
+    "bridge"
+  ],
+  "license": "MIT"
+}

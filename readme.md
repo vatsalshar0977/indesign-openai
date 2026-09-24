@@ -1,42 +1,50 @@
-# OpenAI for Adobe InDesign
+# InDesign ⇄ Arena
 
-UXP dialog to connect OpenAI with Adobe InDesign (2023/v18.5). UXP Plugin (Text/GPT-4o, Image description/GPT-4o). 
+This fork of [openai-4-indesign](https://github.com/RolandDreger/indesign-openai) connects
+Adobe InDesign to an **agent** instead of OpenAI. Two pieces:
 
-<img width="1920" alt="openAI_for_indesign" src="https://github.com/RolandDreger/indesign-openai/assets/19747449/27885cdb-2254-4527-8b78-3672d27a09e6">
+- **`arena-link/` — Arena Link**, a UXP plugin of our own: no API key, no model picker, no
+  account. It sends requests to the bridge and lets the agent read and edit the open document
+  (selection, frames, find/replace, alt text, export).
+- **`bridge/`** — a zero-dependency Node server: queues each request as a job until the agent
+  answers it, and carries agent commands the other way into InDesign.
 
+```bash
+npm run bridge         # start the bridge, open the dashboard it prints
+npm run build:arena    # build Plugin/ArenaLink.ccx with the bridge address baked in
+npm test               # round-trip tests with mocked UXP + InDesign
+```
 
-## Usage
+**Start here:** [docs/ARENA-LINK.md](docs/ARENA-LINK.md) (the plugin) ·
+[docs/BRIDGE.md](docs/BRIDGE.md) (server, CLI, API) ·
+[docs/INSTALL-WINDOWS.md](docs/INSTALL-WINDOWS.md) (installation) ·
+[docs/INSTALL.md](docs/INSTALL.md) (all platforms, local bridge).
 
-1. Go to `Code` → `Download ZIP`
-2. Create an account at [OpenAi](https://openai.com/) (if you don't already have one).
-3. Create an API key under `User` → `API keys` and the button `Create new secret key`. 
+## Quick start
 
-**Plugin** (latest)
+1. `npm run bridge` → note the URL it prints.
+2. Install `Plugin/ArenaLink.ccx` (or load `arena-link/` with the UXP Developer Tool).
+3. In the panel: paste the URL, press **Connect**, leave *Let the agent drive InDesign* on.
+4. Type an instruction and press **Send** — or just ask the agent, which can now work on the
+   document directly.
 
-4. To install the plugin, double-click the downloaded file `openai-4-indesign.ccx`.
-5. At the first start click on the key icon (top right of the panel) and enter the API key in the input field of the opened dialog. 
+The original `OpenAI-4-InDesign` panel is not used by any of this. Its source is kept in
+`src/` (with an agent mode added earlier) so the upstream project stays intact — see
+[docs/BRIDGE.md §5](docs/BRIDGE.md) if you ever want the OpenAI path back.
 
-## Use Cases
-Here are some use cases: [Translation, Text Shortening, Headline Creation](https://vimeo.com/836122207), [Images](https://vimeo.com/835233091), [Table editing](https://vimeo.com/869998618) or [image description](https://vimeo.com/895310245). And GREP expressions are also a good use case.
+## Repository map
 
-You have others, please let me know ...
+| path | what |
+| --- | --- |
+| `arena-link/` | Arena Link UXP plugin (the one to install) |
+| `bridge/server.mjs` | bridge server: job queue + command channel |
+| `bridge/cli.mjs` | agent CLI (`jobs`, `read`, `write`, `cmd`, `complete`, …) |
+| `bridge/public/index.html` | browser dashboard |
+| `standalone/indesign-bridge.mjs` | single-file bridge for your own machine |
+| `src/` | upstream OpenAI panel (legacy; agent mode optional) |
+| `scripts/` | builds, icon generator, manifest helper |
+| `test/` | mocked-UXP round-trip tests for both plugins |
 
-## Note
+## License
 
-There is a paid plugin specifically for generating alternate text, [ALT-Text-4-InDesign](https://exchange.adobe.com/apps/cc/1c6b7a83/alt-text-for-indesign), which was developed based on this plugin.
-
-## Remark
-I think many things about *»Artificial Intelligence«* are currently rightly criticized, such as high energy consumption, unclear copyright, discrimination by algorithms, dubious origin of the training data and also poor working conditions and payment of those who classified them. 
-
-Nevertheless, AI has come to stay and offers many interesting new possibilities. Ultimately, everyone has to decide for themselves whether to use it or not. 
-
-# Support
-If you want to support the development of the script: 
-
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_donations&business=roland%2edreger%40a1%2enet&lc=AT&item_name=Roland%20Dreger%20%2f%20Donation%20for%20script%20development%20openai-4-indesign&currency_code=EUR&bn=PP%2dDonationsBF%3abtn_donateCC_LG%2egif%3aNonHosted)
-
-# License
-
-[MIT](http://www.opensource.org/licenses/mit-license.php)
-
-
+MIT — see [LICENSE](LICENSE). Upstream panel by Roland Dreger.

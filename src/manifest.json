@@ -1,0 +1,124 @@
+{
+  "id": "openai4indesign",
+  "name": "OpenAI-4-InDesign",
+  "version": "1.4.3",
+  "main": "index.html",
+  "host": {
+    "app": "ID",
+    "minVersion": "18.5.0"
+  },
+  "manifestVersion": 5,
+  "entrypoints": [
+    {
+      "type": "panel",
+      "id": "templatePanelId",
+      "label": "panelLabel",
+      "description": "panelDescription",
+      "minimumSize": {
+        "width": 300,
+        "height": 540
+      },
+      "preferredDockedSize": {
+        "width": 400,
+        "height": 840
+      },
+      "preferredFloatingSize": {
+        "width": 400,
+        "height": 600
+      },
+      "icons": [
+        {
+          "width": 23,
+          "height": 23,
+          "path": "assets/icons/dark.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "darkest",
+            "dark",
+            "medium"
+          ]
+        },
+        {
+          "width": 23,
+          "height": 23,
+          "path": "assets/icons/light.png",
+          "scale": [
+            1,
+            2
+          ],
+          "theme": [
+            "lightest",
+            "light"
+          ]
+        }
+      ]
+    }
+  ],
+  "requiredPermissions": {
+    "clipboard": "readAndWrite",
+    "localFileSystem": "fullAccess",
+    "allowCodeGenerationFromStrings": false,
+    "network": {
+      "domains": [
+        "https://*.e2b.app",
+        "https://api.openai.com",
+        "http://localhost:8787",
+        "http://127.0.0.1:8787"
+      ]
+    }
+  },
+  "featureFlags": {
+    "enableFillAsCustomAttribute": true,
+    "enableSWCSupport": true
+  },
+  "strings": {
+    "pluginName": {
+      "default": "OpenAI-4-InDesign",
+      "de": "OpenAI-4-InDesign"
+    },
+    "panelLabel": {
+      "default": "OpenAI Text",
+      "de": "OpenAI Text"
+    },
+    "panelDescription": {
+      "default": "Enables access to OpenAI in InDesign",
+      "de": "Erm\u00f6glicht den Zugriff auf OpenAI in InDesign"
+    }
+  },
+  "icons": [
+    {
+      "width": 48,
+      "height": 48,
+      "path": "assets/icons/dreger_dark_theme_logo.svg",
+      "scale": [
+        1
+      ],
+      "theme": [
+        "darkest",
+        "dark",
+        "medium"
+      ],
+      "species": [
+        "pluginList"
+      ]
+    },
+    {
+      "width": 48,
+      "height": 48,
+      "path": "assets/icons/dreger_light_theme_logo.svg",
+      "scale": [
+        1
+      ],
+      "theme": [
+        "lightest",
+        "light"
+      ],
+      "species": [
+        "pluginList"
+      ]
+    }
+  ]
+}

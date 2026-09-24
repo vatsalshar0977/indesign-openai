@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InDesign ⇄ Arena bridge</title>
+<style>
+  :root { color-scheme: dark; --bg:#161616; --panel:#222; --line:#333; --ok:#3ddc84; --warn:#ffb84d; --bad:#ff6b6b; --muted:#9a9a9a; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:14px/1.5 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; background:var(--bg); color:#eee; }
+  header { padding:18px 22px; border-bottom:1px solid var(--line); display:flex; flex-wrap:wrap; gap:14px; align-items:center; }
+  h1 { font-size:17px; margin:0 12px 0 0; font-weight:600; }
+  .pill { padding:3px 10px; border-radius:999px; font-size:12px; border:1px solid var(--line); background:#1d1d1d; }
+  .pill.ok { color:var(--ok); border-color:#2c5c3f; }
+  .pill.bad { color:var(--bad); border-color:#5c2c2c; }
+  .pill.pending { color:var(--warn); border-color:#5c4a2c; }
+  main { padding:20px 22px 60px; max-width:1100px; }
+  section { margin-bottom:26px; }
+  h2 { font-size:13px; text-transform:uppercase; letter-spacing:.08em; color:var(--muted); margin:0 0 10px; }
+  .card { background:var(--panel); border:1px solid var(--line); border-radius:8px; padding:12px 14px; margin-bottom:10px; }
+  code, .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; }
+  .url { background:#111; border:1px solid var(--line); border-radius:6px; padding:8px 10px; display:flex; gap:10px; align-items:center; }
+  .url input { flex:1; background:transparent; border:0; color:#8fd3ff; font-family:ui-monospace,monospace; font-size:13px; }
+  button { background:#2e2e2e; color:#eee; border:1px solid #444; border-radius:6px; padding:6px 12px; cursor:pointer; font-size:13px; }
+  button:hover { background:#3a3a3a; }
+  button.primary { background:#1a5fb4; border-color:#2a6fc4; }
+  ol, ul { margin:8px 0; padding-left:22px; }
+  li { margin:4px 0; }
+  .muted { color:var(--muted); }
+  .row { display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+  .job-text { white-space:pre-wrap; background:#111; border:1px solid var(--line); border-radius:6px; padding:10px; max-height:180px; overflow:auto; margin:8px 0; }
+  textarea { width:100%; min-height:90px; background:#111; color:#eee; border:1px solid var(--line); border-radius:6px; padding:10px; font:inherit; }
+  input[type=text] { background:#111; color:#eee; border:1px solid var(--line); border-radius:6px; padding:6px 8px; }
+  .media img { max-width:220px; max-height:220px; border:1px solid var(--line); border-radius:6px; margin:6px 8px 0 0; }
+  .empty { color:var(--muted); font-style:italic; }
+  table { width:100%; border-collapse:collapse; }
+  th, td { text-align:left; padding:6px 8px; border-bottom:1px solid var(--line); font-size:13px; vertical-align:top; }
+  th { color:var(--muted); font-weight:500; }
+  a { color:#8fd3ff; }
+</style>
+</head>
+<body>
+<header>
+  <h1>InDesign ⇄ Arena bridge</h1>
+  <span class="pill" id="bridge-pill">bridge …</span>
+  <span class="pill" id="plugin-pill">InDesign …</span>
+  <span class="pill" id="jobs-pill">jobs …</span>
+  <span style="flex:1"></span>
+  <span class="muted mono" id="uptime"></span>
+</header>
+
+<main>
+  <section>
+    <h2>1 · Bridge address (paste this into the plugin)</h2>
+    <div class="url">
+      <input id="url" readonly value="">
+      <button onclick="copyUrl()">Copy</button>
+    </div>
+    <p class="muted" style="margin:8px 0 0">
+      With the <b>Arena Link</b> plugin: open its panel → paste this URL in the field → <b>Connect</b>.
+      That is all: the agent link switches itself on. No API key, no model selection, no OpenAI.
+      The status line turns green as soon as InDesign is talking to this server.
+    </p>
+  </section>
+
+  <section>
+    <h2>2 · Waiting for the agent <span class="muted" id="jobs-count"></span></h2>
+    <div id="jobs"><div class="empty">No queued requests.</div></div>
+  </section>
+
+  <section>
+    <h2>3 · Commands sent to InDesign</h2>
+    <div class="row" style="margin-bottom:10px">
+      <input type="text" id="cmd-op" placeholder="doc.info" style="width:180px">
+      <input type="text" id="cmd-args" placeholder='{"text":"Hello"}  (args JSON, optional)' style="flex:1;min-width:220px">
+      <button class="primary" onclick="sendCmd()">Send command</button>
+      <input type="text" id="token" placeholder="agent token (if set)" style="width:190px">
+    </div>
+    <div id="cmds"><div class="empty">No commands yet.</div></div>
+  </section>
+
+  <section>
+    <h2>Quick reference</h2>
+    <div class="card">
+      <table>
+        <tr><th>Command</th><th>Args</th><th>Does</th></tr>
+        <tr><td class="mono">ping</td><td class="mono">–</td><td>App name + version, proves the link works</td></tr>
+        <tr><td class="mono">app.info</td><td class="mono">–</td><td>Open documents, active document name, selection kind</td></tr>
+        <tr><td class="mono">doc.info</td><td class="mono">–</td><td>Active document: name, path, pages, size, units</td></tr>
+        <tr><td class="mono">doc.list</td><td class="mono">–</td><td>All open documents</td></tr>
+        <tr><td class="mono">selection.get</td><td class="mono">–</td><td>Text of the current selection (frames or tables)</td></tr>
+        <tr><td class="mono">selection.set</td><td class="mono">{ text }</td><td>Replaces the selection with new text</td></tr>
+        <tr><td class="mono">frames.list</td><td class="mono">{ limit }</td><td>Text frames of the active spread with contents</td></tr>
+        <tr><td class="mono">frame.set</td><td class="mono">{ index|name, text }</td><td>Overwrites one text frame</td></tr>
+        <tr><td class="mono">text.append</td><td class="mono">{ text }</td><td>Appends text to the first story of the active doc</td></tr>
+        <tr><td class="mono">page.info</td><td class="mono">–</td><td>Active page: name, index, item counts</td></tr>
+        <tr><td class="mono">text.find</td><td class="mono">{ find, grep, limit }</td><td>Find text (or GREP) with match previews</td></tr>
+        <tr><td class="mono">text.replace</td><td class="mono">{ find, replace, grep }</td><td>Search & replace across the document</td></tr>
+        <tr><td class="mono">altText.get / altText.set</td><td class="mono">{ text }</td><td>Read or write the alt text of the selection</td></tr>
+        <tr><td class="mono">doc.save</td><td class="mono">–</td><td>Saves the active document</td></tr>
+        <tr><td class="mono">image.get</td><td class="mono">–</td><td>Exports the selected image as base64 JPEG so the agent can see it</td></tr>
+        <tr><td class="mono">doc.export</td><td class="mono">{ format: "pdf"|"idml"|"jpeg"|"png" }</td><td>Exports to the plugin temp folder, returns the file path</td></tr>
+      </table>
+    </div>
+    <p class="muted">Requests typed in the panel arrive as jobs above; the agent answers them and the text lands back in the
+      panel. With the agent link on, the agent can also run these commands directly — read the selection, rewrite it,
+      search and replace, inspect the document — without anyone touching the panel.</p>
+  </section>
+</main>
+
+<script>
+const $ = (s) => document.querySelector(s);
+let TOKEN = localStorage.getItem("bridge-token") || "";
+const tokenInput = $("#token");
+tokenInput.value = TOKEN;
+tokenInput.addEventListener("change", () => { TOKEN = tokenInput.value.trim(); localStorage.setItem("bridge-token", TOKEN); });
+
+async function api(path, opts = {}) {
+  const headers = { "content-type": "application/json", ...(opts.headers || {}) };
+  if (TOKEN) headers["x-bridge-token"] = TOKEN;
+  const res = await fetch(path, { ...opts, headers });
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${(await res.text()).slice(0,200)}`);
+  return res.json();
+}
+
+function copyUrl() {
+  const input = $("#url");
+  input.select();
+  navigator.clipboard?.writeText(input.value);
+  const btn = event.target; btn.textContent = "Copied ✓"; setTimeout(() => (btn.textContent = "Copy"), 1200);
+}
+
+async function sendCmd() {
+  const op = $("#cmd-op").value.trim();
+  if (!op) return;
+  let args = {};
+  const raw = $("#cmd-args").value.trim();
+  if (raw) { try { args = JSON.parse(raw); } catch { alert("Args must be valid JSON"); return; } }
+  await api("/v1/indesign/commands?wait=20", { method: "POST", body: JSON.stringify({ op, args }) });
+  $("#cmd-args").value = "";
+  refresh();
+}
+
+async function answerJob(id) {
+  const text = document.querySelector(`#answer-${id}`).value;
+  await api(`/v1/jobs/${id}/complete`, { method: "POST", body: JSON.stringify({ texts: [text] }) });
+  refresh();
+}
+
+function mediaRow(job) {
+  if (!job.media?.length) return "";
+  // media lives outside the web root; show the filename and path instead of the image
+  return `<div class="muted mono">${job.media.map(m => m.path.split("/").pop() + " (" + Math.round(m.bytes/1024) + " KB)").join(", ")}</div>`;
+}
+
+async function refresh() {
+  try {
+    const s = await api("/api/state");
+    $("#url").value = s.publicUrl;
+    const connected = s.plugin.connected;
+    const pp = $("#plugin-pill");
+    pp.textContent = connected ? "InDesign connected" : "InDesign offline";
+    pp.className = "pill " + (connected ? "ok" : "bad");
+    $("#bridge-pill").textContent = "bridge online";
+    $("#bridge-pill").className = "pill ok";
+    $("#uptime").textContent = "up " + Math.round((Date.now() - Date.parse(s.startedAt)) / 1000) + "s";
+
+    const pending = s.jobs.filter(j => j.state === "pending");
+    $("#jobs-pill").textContent = pending.length ? `${pending.length} job(s) waiting` : "no jobs waiting";
+    $("#jobs-pill").className = "pill " + (pending.length ? "pending" : "");
+    $("#jobs-count").textContent = pending.length ? `(${pending.length})` : "";
+
+    $("#jobs").innerHTML = s.jobs.length ? s.jobs.map(j => `
+      <div class="card">
+        <div class="row">
+          <b class="mono">${j.id}</b>
+          <span class="pill ${j.state === "done" ? "ok" : j.state === "error" ? "bad" : "pending"}">${j.state}</span>
+          <span class="muted mono">${j.endpoint} · ${j.model} · n=${j.n} · ${j.createdAt.replace("T"," ").slice(0,19)}</span>
+        </div>
+        ${mediaRow(j)}
+        <div class="job-text">${escapeHtml(j.text)}${j.textLength > 400 ? "\n… (truncated)" : ""}</div>
+        ${j.state === "done" ? `<div class="job-text" style="border-color:#2c5c3f">${escapeHtml(j.resultText || "")}</div>` : `
+          <textarea id="answer-${j.id}" placeholder="Answer text (agent fills this in, or type one yourself)"></textarea>
+          <div class="row" style="margin-top:8px"><button class="primary" onclick="answerJob('${j.id}')">Send back to InDesign</button></div>`}
+      </div>`).join("") : `<div class="empty">No queued requests yet. Press <b>Send</b> in the InDesign panel and it shows up here.</div>`;
+
+    $("#cmds").innerHTML = s.commands.length ? `<table><tr><th>id</th><th>op</th><th>state</th><th>result</th></tr>` + s.commands.map(c => `
+      <tr>
+        <td class="mono">${c.id}</td>
+        <td class="mono">${c.op}</td>
+        <td class="mono">${c.state}</td>
+        <td class="mono">${escapeHtml(c.error || (c.result === null || c.result === undefined ? "" : JSON.stringify(c.result).slice(0, 300)))}</td>
+      </tr>`).join("") + "</table>" : `<div class="empty">No commands yet.</div>`;
+  } catch (err) {
+    $("#bridge-pill").textContent = "bridge unreachable";
+    $("#bridge-pill").className = "pill bad";
+  }
+}
+
+function escapeHtml(s) {
+  return String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+api("/api/config").then((cfg) => {
+  if (cfg.tokenRequired && !TOKEN) {
+    tokenInput.placeholder = "agent token required";
+    tokenInput.style.borderColor = "#ffb84d";
+  }
+}).catch(() => {});
+
+refresh();
+setInterval(refresh, 3000);
+</script>
+</body>
+</html>
