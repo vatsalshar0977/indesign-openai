@@ -136,6 +136,18 @@ function broadcast(event, data) {
 /* ------------------------------------------------------------- http basics */
 
 function sendJson(res, status, obj) {
+  if (res.__head) {
+    res.writeHead(status, {
+      "content-type": "application/json; charset=utf-8",
+      "content-length": 0,
+      "access-control-allow-origin": "*",
+      "access-control-allow-headers": "*",
+      "access-control-allow-methods": "GET,POST,PUT,DELETE,OPTIONS",
+      "cache-control": "no-store"
+    });
+    res.end();
+    return;
+  }
   const body = JSON.stringify(obj, null, 0);
   res.writeHead(status, {
     "content-type": "application/json; charset=utf-8",
@@ -570,6 +582,8 @@ function waitForAnyCommand(ms) {
 const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, `http://${req.headers.host || "localhost"}`);
   const p = url.pathname;
+  res.__head = req.method === "HEAD";
+  if (req.method === "HEAD") req.method = "GET";
 
   if (req.method === "OPTIONS") {
     res.writeHead(204, {
@@ -612,6 +626,17 @@ const server = http.createServer(async (req, res) => {
         clearInterval(keepAlive);
         sseClients.delete(res);
       });
+      return;
+    }
+
+    if ((req.method === "GET" || req.method === "HEAD") && (p === "/ping" || p === "/api/ping")) {
+      res.writeHead(200, {
+        "content-type": "text/plain; charset=utf-8",
+        "content-length": 2,
+        "access-control-allow-origin": "*",
+        "cache-control": "no-store"
+      });
+      res.end("ok");
       return;
     }
 

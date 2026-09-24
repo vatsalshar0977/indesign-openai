@@ -12,8 +12,8 @@ const indesign = require("indesign");
 const config = require("../lib/config.js");
 const ops = require("./ops.js");
 
-const POLL_INTERVAL_MS = 1500;
-const LONG_POLL_WAIT_SEC = 20;
+const POLL_INTERVAL_MS = 1200;
+const LONG_POLL_WAIT_SEC = 0; /* short requests: proxies in front of the bridge time out on held connections */
 const RECONNECT_INTERVAL_MS = 5000;
 const JOB_TIMEOUT_MS = 15 * 60 * 1000;
 
@@ -186,7 +186,7 @@ async function sendQuestion() {
   setStatus("Waiting for the agent …", "");
   try {
     const content = context ? `${question}\n\n${context}` : question;
-    const createResponse = await fetch(new URL("v1/chat/completions", base).href, {
+    const createResponse = await fetch(new URL("v1/chat/completions?wait=0", base).href, {
       method: "POST",
       headers: Object.assign(headers(), { "Content-Type": "application/json", Authorization: "Bearer arena-link" }),
       body: JSON.stringify({ model: "arena-agent", messages: [{ role: "user", content }], n: 1 }),
@@ -228,7 +228,7 @@ function extractText(payload) {
 
 async function waitForJob(jobId, base) {
   if (!jobId) throw new Error("The bridge did not return a job id.");
-  const url = new URL(`v1/jobs/${jobId}?wait=20`, base);
+  const url = new URL(`v1/jobs/${jobId}?wait=0`, base);
   const start = Date.now();
   while (Date.now() - start < JOB_TIMEOUT_MS) {
     const response = await fetch(url.href, {
