@@ -27,12 +27,14 @@ let pollTimer = null;
 const el = (id) => document.getElementById(id);
 
 function headers() {
-  return {
+  const token = config.getTrafficToken();
+  const extra = token ? { "e2b-traffic-access-token": token } : {};
+  return Object.assign({
     "Accept": "application/json, text/plain, */*",
     "Accept-Language": "en-US,en;q=0.9",
     "Cache-Control": "no-cache",
     "User-Agent": BROWSER_UA
-  };
+  }, extra);
 }
 
 function setStatus(text, level) {
@@ -300,6 +302,8 @@ function registerHandlers() {
     clearError();
     const field = el("url-field");
     config.setStoredBridgeUrl(String(field?.value || "").trim());
+    const tokenField = el("token-field");
+    if (tokenField) config.setStoredTrafficToken(String(tokenField.value || "").trim());
     stopLink();
     if (config.isAgentEnabled()) startLink();
   });
@@ -308,6 +312,13 @@ function registerHandlers() {
   urlField?.addEventListener("change", () => {
     const field = el("url-field");
     config.setStoredBridgeUrl(String(field?.value || "").trim());
+  });
+
+  const tokenField = el("token-field");
+  tokenField?.addEventListener("change", () => {
+    config.setStoredTrafficToken(String(tokenField.value || "").trim());
+    stopLink();
+    if (config.isAgentEnabled()) startLink();
   });
 
   const agentSwitch = el("agent-switch");
@@ -343,6 +354,8 @@ async function setup(rootNode) {
   registerHandlers();
   const urlField = el("url-field");
   if (urlField) urlField.value = config.getBridgeUrl();
+  const tokenField = el("token-field");
+  if (tokenField) tokenField.value = config.getTrafficToken();
   const agentSwitch = el("agent-switch");
   if (agentSwitch) agentSwitch.checked = config.isAgentEnabled();
   if (config.getBridgeUrl() && config.isAgentEnabled()) {

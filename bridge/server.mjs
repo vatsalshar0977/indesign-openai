@@ -48,6 +48,7 @@ const PUBLIC_DIR = path.join(__dirname, "public");
    UPSTREAM=https://host.e2b.app UPSTREAM_TOKEN=secret node bridge/server.mjs       */
 const UPSTREAM = (process.env.UPSTREAM || "").replace(/\/+$/, "");
 const UPSTREAM_TOKEN = process.env.UPSTREAM_TOKEN || "";
+const UPSTREAM_TOKEN_HEADER = process.env.TRAFFIC_TOKEN || "";
 const UPSTREAM_UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 /* Base64 copy of the dashboard, injected by scripts/bundle-standalone.mjs so the
    single-file build has no external assets. */
@@ -333,7 +334,8 @@ async function forwardJob(job) {
         "content-type": "application/json",
         "accept": "application/json, text/plain, */*",
         "user-agent": UPSTREAM_UA,
-        ...(UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {})
+        ...(UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {}),
+        ...(UPSTREAM_TOKEN_HEADER ? { "e2b-traffic-access-token": UPSTREAM_TOKEN_HEADER } : {})
       },
       body: JSON.stringify({ model: job.model, messages: [{ role: "user", content }], n: job.n })
     });
@@ -353,7 +355,8 @@ async function forwardJob(job) {
         headers: {
           accept: "application/json, text/plain, */*",
           "user-agent": UPSTREAM_UA,
-          ...(UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {})
+          ...(UPSTREAM_TOKEN ? { "x-bridge-token": UPSTREAM_TOKEN } : {}),
+          ...(UPSTREAM_TOKEN_HEADER ? { "e2b-traffic-access-token": UPSTREAM_TOKEN_HEADER } : {})
         }
       });
       const data = await res.json().catch(() => ({}));

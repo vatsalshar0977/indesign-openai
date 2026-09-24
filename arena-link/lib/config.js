@@ -7,8 +7,11 @@
  */
 
 var BUILD_BRIDGE_URL = "__BRIDGE_URL__";
+/* Hosts behind a proxy (e2b preview, tunnels) sometimes need an extra header. */
+var BUILD_TRAFFIC_TOKEN = "__TRAFFIC_TOKEN__";
 
 const STORAGE_KEY_URL = "arena-bridge-url";
+const STORAGE_KEY_TOKEN = "arena-traffic-token";
 const STORAGE_KEY_ENABLED = "arena-agent-enabled";
 
 function getBuildBridgeUrl() {
@@ -40,6 +43,35 @@ function getBridgeUrl() {
   return getStoredBridgeUrl() || getBuildBridgeUrl();
 }
 
+function getBuildTrafficToken() {
+  if (typeof BUILD_TRAFFIC_TOKEN !== "string") return "";
+  if (BUILD_TRAFFIC_TOKEN === "" || BUILD_TRAFFIC_TOKEN.indexOf("__TRAFFIC_TOKEN__") === 0) return "";
+  return BUILD_TRAFFIC_TOKEN;
+}
+
+function getStoredTrafficToken() {
+  try {
+    return localStorage.getItem(STORAGE_KEY_TOKEN) || "";
+  } catch (err) {
+    return "";
+  }
+}
+
+function setStoredTrafficToken(token) {
+  try {
+    const clean = String(token || "").trim();
+    if (clean) localStorage.setItem(STORAGE_KEY_TOKEN, clean);
+    else localStorage.removeItem(STORAGE_KEY_TOKEN);
+  } catch (err) {
+    console.warn("Could not store the access token.", err);
+  }
+  return getTrafficToken();
+}
+
+function getTrafficToken() {
+  return getStoredTrafficToken() || getBuildTrafficToken();
+}
+
 function isAgentEnabled() {
   try {
     return localStorage.getItem(STORAGE_KEY_ENABLED) !== "0";
@@ -60,6 +92,8 @@ function setAgentEnabled(enabled) {
 module.exports = {
   getBridgeUrl,
   setStoredBridgeUrl,
+  getTrafficToken,
+  setStoredTrafficToken,
   isAgentEnabled,
   setAgentEnabled
 };

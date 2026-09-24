@@ -21,6 +21,7 @@ const tmpDir = path.join(root, "Plugin", ".build-arena");
 const outFile = path.join(root, "Plugin", "ArenaLink.ccx");
 
 const bridgeUrl = (process.env.BRIDGE_URL || process.argv[2] || "").trim().replace(/\/+$/, "");
+const trafficToken = (process.env.TRAFFIC_TOKEN || "").trim();
 let origin = "";
 if (bridgeUrl) {
   try {
@@ -39,7 +40,9 @@ await fsp.cp(srcDir, tmpDir, { recursive: true });
 /* 1 · default bridge address */
 const configPath = path.join(tmpDir, "lib", "config.js");
 const config = fs.readFileSync(configPath, "utf8");
-fs.writeFileSync(configPath, config.replace(/var BUILD_BRIDGE_URL = "[^"]*";/, `var BUILD_BRIDGE_URL = ${JSON.stringify(bridgeUrl)};`));
+fs.writeFileSync(configPath, config
+  .replace(/var BUILD_BRIDGE_URL = "[^"]*";/, `var BUILD_BRIDGE_URL = ${JSON.stringify(bridgeUrl)};`)
+  .replace(/var BUILD_TRAFFIC_TOKEN = "[^"]*";/, `var BUILD_TRAFFIC_TOKEN = ${JSON.stringify(trafficToken)};`));
 
 /* 2 · network permission */
 const manifestPath = path.join(tmpDir, "manifest.json");
@@ -72,4 +75,5 @@ fs.rmSync(tmpDir, { recursive: true, force: true });
 
 console.log(`\n  built  Plugin/ArenaLink.ccx (${(fs.statSync(outFile).size / 1024).toFixed(1)} KB, ${entries.length} entries)`);
 console.log(`  bridge ${bridgeUrl || "(none - set it in the panel)"}`);
+if (trafficToken) console.log(`  token  ${trafficToken.slice(0, 6)}… (e2b-traffic-access-token)`);
 console.log(`  domains ${domains.join(", ")}\n`);

@@ -243,6 +243,22 @@ check("selection.set", results["selection.set"].state === "done" && frame.conten
 check("text.append", results["text.append"].state === "done" && appended.text === "!", appended.text);
 check("unknown op is rejected", results["nope.nope"].state === "error" && /Unknown command/.test(results["nope.nope"].error), results["nope.nope"].error);
 
+console.log("\n[Arena Link] proxy access token header");
+const seen = [];
+const realFetch = global.fetch;
+global.fetch = (url, opts) => {
+  seen.push({ url: String(url), headers: opts?.headers || {} });
+  return realFetch(url, opts);
+};
+panel.stopLink();
+localStorage.setItem("arena-traffic-token", "test-token-123");
+panel.startLink();
+await sleep(2000);
+const polls = seen.filter((r) => r.url.includes("/v1/indesign/poll"));
+check("poll requests were sent", polls.length > 0);
+check("traffic token header is attached", polls.some((r) => r.headers["e2b-traffic-access-token"] === "test-token-123"), JSON.stringify(polls[0]?.headers || {}));
+global.fetch = realFetch;
+
 panel.stopLink();
 check("link stops", panel.isLinkRunning() === false);
 
